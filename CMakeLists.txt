@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 3.5)
 
 project(encoin LANGUAGES CXX)
 
+if (APPLE)
+    # fix for brew openssl package
+    # you might need to set your own path
+    set(OPENSSL_ROOT_DIR "/usr/local/opt/openssl/")
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
