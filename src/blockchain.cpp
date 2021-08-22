@@ -3,24 +3,24 @@
 
 namespace Encoin {
 
-Blockchain::Blockchain()
+blockchain::blockchain()
 {
-    _blocks.push_back(Block::genesis());
-    _blocks.front().calcHash();
+    _blocks.push_back(block::genesis());
+    _blocks.front().calc_hash();
 }
 
-void Blockchain::add(Block block)
+void blockchain::add(block block)
 {
-    block.setPreviousHash(_blocks.back().hash());
-    block.calcHash();
+    block.set_previous_hash(_blocks.back().hash());
+    block.calc_hash();
     _blocks.push_back(block);
 }
 
-void Blockchain::print()
+void blockchain::print()
 {
-    for (Block &block : _blocks)
+    for (block &block : _blocks)
     {
-        std::cout << "Block " << block.index() << ": " << block.hash() << std::endl;
+        std::cout << "Block " << ": " << block.hash() << std::endl;
     }
 }
 

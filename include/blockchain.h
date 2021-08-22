@@ -7,16 +7,16 @@
 
 namespace Encoin {
 
-class Blockchain
+class blockchain
 {
 public:
-    Blockchain();
+    blockchain();
 
-    void add(Block block);
+    void add(block block);
     void print();
 
 protected:
-    std::vector<Block> _blocks;
+    std::vector<block> _blocks;
 
 };
 

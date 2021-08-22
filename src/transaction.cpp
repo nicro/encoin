@@ -1,25 +1,44 @@
 #include "transaction.h"
 
+#include <sha256.h>
+#include <sstream>
+
 namespace Encoin {
 
-Transaction::Transaction(std::string from, std::string to, double value)
-    : _sender(from), _receiver(to), _amount(value)
+transaction::transaction(std::string from, std::string to, double value)
 {
 }
 
-double Transaction::amount() const
+transaction::hash_t transaction::to_hash() const
 {
-    return _amount;
+    std::stringstream buffer;
+
+    for (auto &tx : _inputs)
+    {
+        buffer << tx.address;
+        buffer << tx.amount;
+        buffer << tx.signature;
+        buffer << tx.transaction;
+    }
+    for (auto &tx : _outputs)
+    {
+        buffer << tx.address;
+        buffer << tx.amount;
+    }
+
+    return sha256(buffer.str());
 }
 
-std::string Transaction::sender() const
+bool transaction::is_valid() const
 {
-    return _sender;
+    if (_hash != this->to_hash())
+        return false;
+
+
+
+    return true;
 }
 
-std::string Transaction::receiver() const
-{
-    return _receiver;
-}
+
 
 }

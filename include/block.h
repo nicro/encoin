@@ -9,28 +9,26 @@
 
 namespace Encoin {
 
-class Block
+class block
 {
 public:
 
-    Block(int idx);
+    block();
 
-    int index() const;
     std::string hash() const;
-    bool isValid() const;
+    bool is_valid() const;
 
-    void calcHash();
-    void setPreviousHash(const std::string &hash);
-    void add(const Transaction &tx);
+    void calc_hash();
+    void set_previous_hash(const std::string &hash);
+    void add(const transaction &tx);
 
-    static Block genesis();
+    static block genesis();
 
 protected:
-    int _index;
     time_t _timestamp;
     std::string _hash;
     std::string _previousHash;
-    std::vector<Transaction> _transactions;
+    std::vector<transaction> _transactions;
 };
 
 }

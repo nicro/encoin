@@ -1,62 +1,43 @@
 #include "block.h"
 
-#include <sha256.h>
-#include <sstream>
-
 namespace Encoin {
 
 using std::chrono::system_clock;
 
-Block::Block(int idx)
-    : _index(idx)
+block::block()
 {
     _timestamp = system_clock::to_time_t(system_clock::now());
 }
 
-bool Block::isValid() const
+bool block::is_valid() const
 {
     // checks if first digits equal 000000
     return true;
 }
 
-void Block::add(const Transaction &tx)
+void block::add(const transaction &tx)
 {
     _transactions.push_back(tx);
 }
 
-void Block::calcHash()
+void block::calc_hash()
 {
-    std::stringstream buffer;
-    for (auto &tx : _transactions)
-    {
-        buffer << tx.receiver() << " ";
-        buffer << tx.sender()   << " ";
-        buffer << tx.amount()   << " ";
-    }
-    buffer << _previousHash << std::endl;
-
-    _hash = sha256(buffer.str());
 }
 
-std::string Block::hash() const
+std::string block::hash() const
 {
     return _hash;
 }
 
-void Block::setPreviousHash(const std::string &hash)
+void block::set_previous_hash(const std::string &hash)
 {
     _previousHash = hash;
 }
 
-int Block::index() const
+block block::genesis()
 {
-    return _index;
-}
-
-Block Block::genesis()
-{
-    Block genesis(0);
-    genesis.setPreviousHash("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    block genesis;
+    genesis.set_previous_hash("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
     genesis.add({ "satoshi", "nicro", 50 });
     return genesis;
 }

@@ -2,22 +2,36 @@
 #define TRANSCATION_H
 
 #include <string>
+#include <vector>
 
 namespace Encoin {
 
-class Transaction
-{
-public:
-    Transaction(std::string from, std::string to, double value);
+struct input_t {
+    std::string address;
+    unsigned int amount;
+    std::string transaction;
+    std::string signature;
+};
 
-    double amount() const;
-    std::string sender() const;
-    std::string receiver() const;
+struct output_t {
+    std::string address;
+    unsigned int amount;
+};
+
+class transaction
+{
+    using hash_t = std::string;
+
+public:
+    transaction(std::string from, std::string to, double value);
+
+    hash_t to_hash() const;
+    bool is_valid() const;
 
 protected:
-    double _amount;
-    std::string _sender;
-    std::string _receiver;
+    std::vector<input_t> _inputs;
+    std::vector<output_t> _outputs;
+    hash_t _hash;
 };
 
 }
