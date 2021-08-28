@@ -1,6 +1,6 @@
 #include "block.h"
 
-namespace Encoin {
+namespace encoin {
 
 using std::chrono::system_clock;
 
@@ -37,8 +37,8 @@ void block::set_previous_hash(const std::string &hash)
 block block::genesis()
 {
     block genesis;
-    genesis.set_previous_hash("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
-    genesis.add({ "satoshi", "nicro", 50 });
+    //genesis.set_previous_hash("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    //genesis.add({ "satoshi", "nicro", 50 });
     return genesis;
 }
 

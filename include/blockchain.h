@@ -5,7 +5,7 @@
 
 #include "block.h"
 
-namespace Encoin {
+namespace encoin {
 
 class blockchain
 {

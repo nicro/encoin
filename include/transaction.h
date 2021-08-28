@@ -3,30 +3,44 @@
 
 #include <string>
 #include <vector>
+#include <ostream>
+#include <sstream>
+#include <stdexcept>
 
-namespace Encoin {
+namespace encoin {
 
 struct input_t {
+    size_t index;
+    unsigned amount;
     std::string address;
-    unsigned int amount;
     std::string transaction;
     std::string signature;
 };
 
 struct output_t {
+    size_t index;
+    unsigned amount;
     std::string address;
-    unsigned int amount;
+};
+
+class transaction_error : public std::runtime_error
+{
+public:
+    transaction_error(const std::string &what)
+        : std::runtime_error(what) {}
 };
 
 class transaction
 {
     using hash_t = std::string;
 
+    static constexpr double TRANSACTION_FEE = 100;
+
 public:
-    transaction(std::string from, std::string to, double value);
+    transaction();
 
     hash_t to_hash() const;
-    bool is_valid() const;
+    void validate() const;
 
 protected:
     std::vector<input_t> _inputs;

@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace Encoin {
+namespace encoin {
     std::string sha256(const std::string str);
 }
 

@@ -7,7 +7,7 @@
 
 #include "transaction.h"
 
-namespace Encoin {
+namespace encoin {
 
 class block
 {

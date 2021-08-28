@@ -1,7 +1,7 @@
 #include "blockchain.h"
 #include <iostream>
 
-namespace Encoin {
+namespace encoin {
 
 blockchain::blockchain()
 {

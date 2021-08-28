@@ -3,7 +3,7 @@
 #include <sstream>
 #include <iomanip>
 
-std::string Encoin::sha256(const std::string str)
+std::string encoin::sha256(const std::string str)
 {
     unsigned char hash[SHA256_DIGEST_LENGTH];
     SHA256_CTX sha256;
