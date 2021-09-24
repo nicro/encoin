@@ -1,32 +1,56 @@
-#ifndef ECDSA_H
-#define ECDSA_H
+#ifndef KEY_H
+#define KEY_H
 
-#include <openssl/ecdsa.h>
 #include <string>
+#include <iostream>
+#include <secp256k1.h>
 
 namespace encoin {
 
-using key_t = std::basic_string<unsigned char>;
+typedef std::basic_string<unsigned char> key_t;
+#define KEY(_k) reinterpret_cast<const unsigned char*>(_k)
+
+inline std::ostream &operator<<(std::ostream &stream, key_t key)
+{
+    for (auto ch : key)
+        stream << ch;
+    return stream;
+}
+
+class pub_key {
+
+    pub_key(const key_t &data);
+    bool verify(const key_t &hash, const key_t &sign) const;
+
+private:
+    key_t _data;
+    secp256k1_context_struct *_ctx{nullptr};
+};
 
 class ec_point {
+
 public:
-    ec_point();
-    ~ec_point();
+    ec_point(const key_t &priv_key);
 
-    bool generate();
-    bool verify(key_t hash, ECDSA_SIG *signature);
-    ECDSA_SIG *sign(key_t hash);
+    bool verify_key() const;
+    bool calc_public_key(bool compressed = false);
+    bool sign(const key_t &hash, key_t &result) const;
 
-    key_t public_key() const;
-    key_t private_key() const;
+    key_t private_key() const { return _priv_key; }
+    key_t public_key() const { return _pub_key; }
 
-    void set_public_key(key_t key);
-    void set_private_key(key_t key);
+protected:
+    static constexpr unsigned PRIVATE_KEY_STORE_SIZE = 32;
+    static constexpr unsigned PRIVATE_KEY_SIZE = 279;
+    static constexpr unsigned PUBLIC_KEY_SIZE = 65;
+    static constexpr unsigned SIGNATURE_SIZE = 72;
 
-    EC_KEY *_key{nullptr};
-    EC_GROUP *_group{nullptr};
+private:
+    secp256k1_context_struct *_ctx{nullptr};
+    key_t _priv_key;
+    key_t _pub_key;
 };
 
 }
 
-#endif // ECDSA_H
+#endif // KEY_H
