@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <secp256k1.h>
+#include <base16.h>
 
 namespace encoin {
 
@@ -38,6 +39,9 @@ public:
 
     key_t private_key() const { return _priv_key; }
     key_t public_key() const { return _pub_key; }
+
+    key_t private_key_hex() const { return base16_encode(_priv_key); }
+    key_t public_key_hex()  const { return base16_encode(_pub_key);  }
 
 protected:
     static constexpr unsigned PRIVATE_KEY_STORE_SIZE = 32;
