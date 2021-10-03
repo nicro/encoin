@@ -1,60 +1,51 @@
 #ifndef KEY_H
 #define KEY_H
 
-#include <string>
-#include <iostream>
 #include <secp256k1.h>
 #include <base16.h>
+#include <string>
+#include <tuple>
+#include <vector>
+#include <ostream>
 
 namespace encoin {
 
-typedef std::basic_string<unsigned char> key_t;
-#define KEY(_k) reinterpret_cast<const unsigned char*>(_k)
+typedef std::vector<unsigned char> bytes, key_t;
 
-inline std::ostream &operator<<(std::ostream &stream, key_t key)
+class ec_point
 {
-    for (auto ch : key)
-        stream << ch;
-    return stream;
-}
-
-class pub_key {
-
-    pub_key(const key_t &data);
-    bool verify(const key_t &hash, const key_t &sign) const;
-
-private:
-    key_t _data;
-    secp256k1_context_struct *_ctx{nullptr};
-};
-
-class ec_point {
-
 public:
-    ec_point(const key_t &priv_key);
+    ec_point();
+    ec_point(const std::string &private_key);
+    ~ec_point();
 
-    bool verify_key() const;
-    bool calc_public_key(bool compressed = false);
-    bool sign(const key_t &hash, key_t &result) const;
+    key_t public_key() const { return _pubkey; }
+    key_t private_key() const { return _privkey; }
+    key_t public_key_hex() const { return base16_encode(_pubkey); }
+    key_t private_key_hex() const { return base16_encode(_privkey); }
 
-    key_t private_key() const { return _priv_key; }
-    key_t public_key() const { return _pub_key; }
-
-    key_t private_key_hex() const { return base16_encode(_priv_key); }
-    key_t public_key_hex()  const { return base16_encode(_pub_key);  }
+    std::tuple<key_t, bool> sign(bytes hash) const;
+    static bool verify(bytes msg_hash, const bytes sig, const key_t pubkey);
 
 protected:
-    static constexpr unsigned PRIVATE_KEY_STORE_SIZE = 32;
-    static constexpr unsigned PRIVATE_KEY_SIZE = 279;
-    static constexpr unsigned PUBLIC_KEY_SIZE = 65;
-    static constexpr unsigned SIGNATURE_SIZE = 72;
+    bool verify_key();
+    bool create_public_key(bool compressed = false);
+
+protected:
+    static constexpr size_t PUBLIC_KEY_SIZE = 65;
 
 private:
-    secp256k1_context_struct *_ctx{nullptr};
-    key_t _priv_key;
-    key_t _pub_key;
+    secp256k1_context *_ctx{nullptr};
+    key_t _pubkey;
+    key_t _privkey;
 };
 
 }
+
+inline std::ostream &operator<<(std::ostream &stream, encoin::key_t k)
+{
+    return stream << std::string(k.begin(), k.end());
+}
+
 
 #endif // KEY_H
