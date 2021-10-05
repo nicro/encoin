@@ -12,6 +12,19 @@ namespace encoin {
 
 typedef std::vector<unsigned char> bytes, key_t;
 
+class ec_point_exception : public std::runtime_error
+{
+public:
+    ec_point_exception(const std::string &error) noexcept
+        : std::runtime_error(error)
+    {}
+
+    const char *what() const noexcept
+    {
+        return std::runtime_error::what();
+    }
+};
+
 class ec_point
 {
 public:
@@ -33,6 +46,7 @@ protected:
 
 protected:
     static constexpr size_t PUBLIC_KEY_SIZE = 65;
+    static constexpr size_t SIGNATURE_SIZE  = 72;
 
 private:
     secp256k1_context *_ctx{nullptr};

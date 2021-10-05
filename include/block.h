@@ -12,7 +12,6 @@ namespace encoin {
 class block
 {
 public:
-
     block();
 
     std::string hash() const;
