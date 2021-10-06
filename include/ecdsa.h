@@ -12,12 +12,20 @@ namespace encoin {
 
 typedef std::vector<unsigned char> bytes, key_t;
 
+inline std::string key_to_string(key_t key)
+{ return std::string(key.begin(), key.end()); }
+
+inline key_t string_to_key(std::string str)
+{ return key_t(str.begin(), str.end()); }
+
 class ec_point_exception : public std::runtime_error
 {
 public:
     ec_point_exception(const std::string &error) noexcept
         : std::runtime_error(error)
-    {}
+    {
+
+    }
 
     const char *what() const noexcept
     {

@@ -15,11 +15,15 @@ file(GLOB_RECURSE SRC_FILES "src/*.cpp")
 
 add_executable(encoin ${SRC_FILES})
 find_package(OpenSSL REQUIRED)
+find_package(SqliteOrm REQUIRED)
+
 find_library(SECP256K1 secp256k1 PATHS "/usr/lib" "/usr/local/lib" "./secp256k1/.libs")
 
+target_link_libraries(encoin sqlite_orm::sqlite_orm)
 target_link_libraries(encoin OpenSSL::SSL ${SECP256K1})
 include_directories(
     encoin
     "include/"
+    "lib/"
     "/usr/local/include/"
 )

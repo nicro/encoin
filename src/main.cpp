@@ -3,11 +3,12 @@
 
 int main()
 {
-    encoin::wallet wallet;
-    wallet.create_new_address();
-    wallet.create_new_address();
-    wallet.create_new_address();
-    for (auto &add : wallet.addresses())
-        std::cout << add << std::endl;
+    encoin::wallet db;
+    db.create_new_address();
+    db.create_new_address();
+    db.create_new_address();
+
+    for (auto &as : db.addresses())
+        std::cout << as << std::endl;
     return 0;
 }
