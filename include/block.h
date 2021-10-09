@@ -14,19 +14,29 @@ class block
 public:
     block();
 
-    std::string hash() const;
-    bool is_valid() const;
-
-    void calc_hash();
-    void set_previous_hash(const std::string &hash);
+    void update_time_now();
     void add(const transaction &tx);
-
+    std::string calc_hash() const;
     static block genesis();
 
+    void set_height(const unsigned &height) { _height = height; }
+    unsigned height() const { return _height; }
+
+    void set_nonce(const unsigned &nonce) { _nonce = nonce; }
+    unsigned nonce() const { return _nonce; }
+
+    std::string hash() const { return _hash; }
+    void set_hash(const std::string &hash) { _hash = hash; }
+
+    std::string prev_hash() const { return _prev_hash; }
+    void set_prev_hash(const std::string &prev) { _prev_hash = prev; }
+
 protected:
+    unsigned _height;
+    unsigned _nonce;
     time_t _timestamp;
     std::string _hash;
-    std::string _previousHash;
+    std::string _prev_hash;
     std::vector<transaction> _transactions;
 };
 

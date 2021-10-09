@@ -24,7 +24,6 @@ public:
     ec_point_exception(const std::string &error) noexcept
         : std::runtime_error(error)
     {
-
     }
 
     const char *what() const noexcept

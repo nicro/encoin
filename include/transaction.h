@@ -6,20 +6,21 @@
 #include <ostream>
 #include <sstream>
 #include <stdexcept>
+#include <wallet.h>
 
 namespace encoin {
 
+typedef uint64_t amount_t;
+
 struct input_t {
-    size_t index;
-    unsigned amount;
+    amount_t amount;
     std::string address;
     std::string transaction;
     std::string signature;
 };
 
 struct output_t {
-    size_t index;
-    unsigned amount;
+    amount_t amount;
     std::string address;
 };
 
@@ -41,6 +42,13 @@ public:
 
     hash_t to_hash() const;
     void validate() const;
+
+    static transaction create_test(address_t from,
+                                   address_t to,
+                                   address_t reward,
+                                   amount_t amount,
+                                   amount_t requested_amount);
+    amount_t calc_spare_amount() const;
 
 protected:
     std::vector<input_t> _inputs;

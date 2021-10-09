@@ -11,7 +11,7 @@ blockchain::blockchain()
 
 void blockchain::add(block block)
 {
-    block.set_previous_hash(_blocks.back().hash());
+    block.set_prev_hash(_blocks.back().hash());
     block.calc_hash();
     _blocks.push_back(block);
 }
@@ -22,6 +22,11 @@ void blockchain::print()
     {
         std::cout << "Block " << ": " << block.hash() << std::endl;
     }
+}
+
+amount_t blockchain::get_balance_for_address(const address_t &addr)
+{
+    return 0;
 }
 
 
