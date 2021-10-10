@@ -11,12 +11,7 @@
 namespace encoin {
 
 typedef std::vector<unsigned char> bytes, key_t;
-
-inline std::string key_to_string(key_t key)
-{ return std::string(key.begin(), key.end()); }
-
-inline key_t string_to_key(std::string str)
-{ return key_t(str.begin(), str.end()); }
+typedef std::string address_t;
 
 class ec_point_exception : public std::runtime_error
 {

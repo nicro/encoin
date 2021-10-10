@@ -16,8 +16,9 @@ int main()
     block1.add(transaction::create_test("from", "to", reward_addr, 105, 100));
     block1.add(transaction::create_test("from", "to", reward_addr, 105, 100));
     block1.add(transaction::create_test("from", "to", reward_addr, 105, 100));
+    chain.push(block1);
 
-    miner miner{reward_addr};
+    miner miner{chain, reward_addr};
     miner.start();
 
     return 0;

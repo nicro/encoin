@@ -1,11 +1,12 @@
 #include "miner.h"
 
 #include <sha256.h>
+#include <iostream>
 
 namespace encoin {
 
-miner::miner(const address_t &reward_address)
-    : _reward_address(reward_address)
+miner::miner(const blockchain &chain, const address_t &reward_address)
+    : _chain(chain), _reward_address(reward_address)
 {
 }
 

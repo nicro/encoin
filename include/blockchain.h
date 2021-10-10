@@ -14,7 +14,7 @@ class blockchain
 public:
     blockchain();
 
-    void add(block block);
+    void push(block block);
     void print();
     block last_block() const { return _blocks.back(); }
 

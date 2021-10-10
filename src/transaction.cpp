@@ -7,7 +7,7 @@ namespace encoin {
 
 inline std::stringstream &operator<<(std::stringstream &ss, const input_t &in)
 {
-    return ss << in.amount << in.address << in.signature << in.transaction, ss;
+    return ss << in.amount << in.address, ss;
 }
 
 inline std::stringstream &operator<<(std::stringstream &ss, const output_t &out)
@@ -17,7 +17,6 @@ inline std::stringstream &operator<<(std::stringstream &ss, const output_t &out)
 
 transaction::transaction()
 {
-
 }
 
 transaction::hash_t transaction::to_hash() const
@@ -38,14 +37,8 @@ void transaction::validate() const
     if (_hash != this->to_hash())
         throw new transaction_error("hash mismatch");
 
-    auto verifyFunc = [](std::string, std::string, std::string) { return true; };
 
-    for (auto &input : _inputs)
-    {
-        std::string msg = sha256(input.transaction + input.address);
-        if (!verifyFunc(input.address, input.signature, msg))
-            throw new transaction_error("invalid signature");
-    }
+    // verify signature
 
     for (auto &input : _inputs)
     {

@@ -9,10 +9,8 @@ blockchain::blockchain()
     _blocks.front().calc_hash();
 }
 
-void blockchain::add(block block)
+void blockchain::push(block block)
 {
-    block.set_prev_hash(_blocks.back().hash());
-    block.calc_hash();
     _blocks.push_back(block);
 }
 

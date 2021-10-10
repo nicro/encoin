@@ -14,9 +14,7 @@ typedef uint64_t amount_t;
 
 struct input_t {
     amount_t amount;
-    std::string address;
-    std::string transaction;
-    std::string signature;
+    address_t address;
 };
 
 struct output_t {

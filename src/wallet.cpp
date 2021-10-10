@@ -25,7 +25,7 @@ address_t wallet::create_new_address()
     };
 
     _storage.replace(kp);
-    return pubkey_to_address(pub_key);
+    return pubkey_to_address(std::string(pub_key.begin(), pub_key.end()));
 }
 
 std::list<address_t> wallet::addresses()
@@ -47,10 +47,9 @@ std::string wallet::get_private_key(const std::string &pubkey)
     return kp ? kp->private_key : "";
 }
 
-address_t wallet::pubkey_to_address(const key_t &pub)
+address_t wallet::pubkey_to_address(const std::string &pub)
 {
-    std::string hashed = sha256({ pub.begin(), pub.end() });
-    return { hashed.begin(), hashed.end() };
+    return sha256(pub);
 }
 
 }
