@@ -15,17 +15,15 @@ ec_point::ec_point()
     : _ctx(secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY))
 {
     std::string new_key = generate_random_private_key();
-    key_t out(new_key.begin(), new_key.end());
-    if (out.size() != 32)
-        throw ec_point_exception("size not equal to 32: " + std::to_string(out.size()));
-
-    _privkey = std::move(out);
+    _privkey = {new_key.begin(), new_key.end()};
+    if (_privkey.size() != 32)
+        throw ec_point_exception("size not equal to 32: " + std::to_string(_privkey.size()));
 
     if (!verify_key())
         throw ec_point_exception("Unable to create and verify key:  ");
 
     if (!create_public_key())
-        throw ec_point_exception("Unable to create publick key");
+        throw ec_point_exception("Unable to create public key");
 }
 
 ec_point::~ec_point()
@@ -33,11 +31,10 @@ ec_point::~ec_point()
     secp256k1_context_destroy(_ctx);
 }
 
-ec_point::ec_point(const std::string& privateKey)
+ec_point::ec_point(const key_t& private_key)
     : _ctx(secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY))
 {
-    auto priv = encoin::base16_decode(std::vector(privateKey.begin(), privateKey.end()));
-    _privkey.assign(privateKey.begin(), privateKey.end());
+    _privkey = encoin::base16_decode(private_key);
 
     if (!verify_key())
         throw ec_point_exception("Unable to create and verify key");
@@ -86,7 +83,7 @@ std::tuple<std::vector<uint8_t>, bool> ec_point::sign(bytes hash) const
 bool ec_point::verify(bytes msgHash, const bytes sign, const key_t pub_key)
 {
     if (pub_key.size() != PUBLIC_KEY_SIZE)
-        throw ec_point_exception("Invalid public key size");
+        throw ec_point_exception("Invalid public key size: " + std::to_string(pub_key.size()));
 
     secp256k1_context* ctx = secp256k1_context_create(SECP256K1_CONTEXT_VERIFY);
 

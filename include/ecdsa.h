@@ -2,6 +2,7 @@
 #define KEY_H
 
 #include <secp256k1.h>
+#include <ecdsa.h>
 #include <base16.h>
 #include <string>
 #include <tuple>
@@ -11,7 +12,7 @@
 namespace encoin {
 
 typedef std::vector<unsigned char> bytes, key_t;
-typedef std::string address_t;
+typedef std::string pubkey_t, privkey_t;
 
 class ec_point_exception : public std::runtime_error
 {
@@ -31,7 +32,7 @@ class ec_point
 {
 public:
     ec_point();
-    ec_point(const std::string &private_key);
+    ec_point(const key_t &private_key);
     ~ec_point();
 
     key_t public_key() const { return _pubkey; }

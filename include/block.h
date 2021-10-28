@@ -31,6 +31,8 @@ public:
     std::string prev_hash() const { return _prev_hash; }
     void set_prev_hash(const std::string &prev) { _prev_hash = prev; }
 
+    std::vector<transaction> transactions() const { return _transactions; }
+
 protected:
     unsigned _height;
     unsigned _nonce;

@@ -18,7 +18,7 @@ public:
     void print();
     block last_block() const { return _blocks.back(); }
 
-    amount_t get_balance_for_address(const address_t &addr);
+    amount_t get_balance(const pubkey_t &addr);
 
 protected:
     std::vector<block> _blocks;

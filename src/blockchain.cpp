@@ -22,11 +22,22 @@ void blockchain::print()
     }
 }
 
-amount_t blockchain::get_balance_for_address(const address_t &addr)
+amount_t blockchain::get_balance(const pubkey_t &addr)
 {
-    return 0;
+    amount_t balance = 0;
+    for (auto &block : _blocks) 
+    {
+        for (auto &tx : block.transactions())
+        {
+            for (auto &in : tx.inputs())
+                if (in.address == addr)
+                    balance -= std::min(balance, in.amount);
+            for (auto &out : tx.outputs())
+                if (out.address == addr)
+                    balance += out.amount;
+        }
+    }
+    return balance;
 }
-
-
 
 }

@@ -6,7 +6,7 @@
 #include <ostream>
 #include <sstream>
 #include <stdexcept>
-#include <wallet.h>
+#include <ecdsa.h>
 
 namespace encoin {
 
@@ -14,7 +14,8 @@ typedef uint64_t amount_t;
 
 struct input_t {
     amount_t amount;
-    address_t address;
+    std::string address;
+    bytes signature;
 };
 
 struct output_t {
@@ -36,18 +37,19 @@ class transaction
     static constexpr double TRANSACTION_FEE = 100;
 
 public:
+    friend class wallet;
+    friend class block;
+
     transaction();
 
     hash_t to_hash() const;
     void validate() const;
+    bytes hash_input(const input_t &in) const;
 
-    static transaction create_test(address_t from,
-                                   address_t to,
-                                   address_t reward,
-                                   amount_t amount,
-                                   amount_t requested_amount);
     amount_t calc_spare_amount() const;
 
+    std::vector<input_t> inputs() const { return _inputs; }
+    std::vector<output_t> outputs() const { return _outputs; }
 protected:
     std::vector<input_t> _inputs;
     std::vector<output_t> _outputs;

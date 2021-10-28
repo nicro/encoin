@@ -8,38 +8,33 @@ namespace encoin {
 
 int hex_value(char digit);
 
-template <typename type = char>
-static std::vector<type> base16_encode(const std::vector<type> &input)
+template <typename type = unsigned char>
+static std::vector<type> base16_encode(const std::vector<unsigned char> str, bool capital = false)
 {
-    static constexpr char hex_digits[] = "0123456789ABCDEF";
+    std::vector<type> hexstr;
+    hexstr.resize(str.size() * 2);
+    const size_t a = capital ? 'A' - 1 : 'a' - 1;
 
-    std::vector<type> output;
-    output.reserve(input.size() * 2);
-    for (unsigned char c : input)
+    for (size_t i = 0, c = str[0] & 0xFF; i < hexstr.size(); c = str[i / 2] & 0xFF)
     {
-        output.push_back(hex_digits[c >> 4]);
-        output.push_back(hex_digits[c & 15]);
+        hexstr[i++] = c > 0x9F ? (c / 16 - 9) | a : c / 16 | '0';
+        hexstr[i++] = (c & 0xF) > 9 ? (c % 16 - 9) | a : c % 16 | '0';
     }
-    return output;
+    return hexstr;
 }
 
-template <typename type = char>
-static std::vector<type> base16_decode(const std::vector<type> &input)
+template <typename type = unsigned char>
+static std::vector<type> base16_decode(const std::vector<unsigned char> hexstr)
 {
-    const auto len = input.size();
-    if (len & 1)
-        return {};
+    std::vector<type> str;
+    str.resize((hexstr.size() + 1) / 2);
 
-    std::vector<type> output;
-    output.reserve(len / 2);
-    for (auto it = input.begin(); it != input.end();) {
-        int hi = hex_value(*it++);
-        int lo = hex_value(*it++);
-        if (hi == -1 || lo == -1)
-            return {};
-        output.push_back(hi << 4 | lo);
+    for (size_t i = 0, j = 0; i < str.size(); i++, j++)
+    {
+        str[i] = (hexstr[j] & '@' ? hexstr[j] + 9 : hexstr[j]) << 4, j++;
+        str[i] |= (hexstr[j] & '@' ? hexstr[j] + 9 : hexstr[j]) & 0xF;
     }
-    return output;
+    return str;
 }
 
 }

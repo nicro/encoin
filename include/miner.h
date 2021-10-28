@@ -9,7 +9,7 @@ namespace encoin {
 
 class miner {
 public:
-    miner(const blockchain &chain, const address_t &reward_address);
+    miner(const blockchain &chain, const pubkey_t &reward_address);
 
     void start();
     bool mine_block(block &new_block);
@@ -18,7 +18,7 @@ public:
 
 protected:
     blockchain _chain;
-    address_t _reward_address;
+    pubkey_t _reward_address;
 
 };
 

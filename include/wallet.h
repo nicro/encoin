@@ -2,15 +2,15 @@
 #define WALLET_H
 
 #include <ecdsa.h>
-
+#include <transaction.h>
 #include <sqlite_orm/sqlite_orm.h>
 #include <list>
 
 namespace encoin {
 
 struct keypair {
-    std::string public_key;
-    std::string private_key;
+    pubkey_t public_key;
+    privkey_t private_key;
 };
 
 namespace sql = sqlite_orm;
@@ -32,11 +32,12 @@ public:
     ~wallet();
 
     void remove_all();
-    address_t create_new_address();
-    std::list<address_t> addresses();
+    pubkey_t create_new_address();
+    std::list<pubkey_t> addresses();
+    pubkey_t get_active_address();
 
-    std::string get_private_key(const std::string &pubkey);
-    static address_t pubkey_to_address(const std::string &pubkey_hex);
+    privkey_t get_private_key(const pubkey_t &pubkey);
+    transaction send(const pubkey_t &to, const amount_t &amount);
 
 protected:
     storage_t _storage;

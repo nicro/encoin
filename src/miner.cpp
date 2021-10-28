@@ -2,10 +2,12 @@
 
 #include <sha256.h>
 #include <iostream>
+#include <fmt/color.h>
+#include <termcolor/termcolor.hpp>
 
 namespace encoin {
 
-miner::miner(const blockchain &chain, const address_t &reward_address)
+miner::miner(const blockchain &chain, const pubkey_t &reward_address)
     : _chain(chain), _reward_address(reward_address)
 {
 }
@@ -17,7 +19,7 @@ void miner::start()
         block new_block;
         if (!mine_block(new_block))
             continue;
-        std::cout << "BLOCK MINED" << std::endl;
+        std::cout << termcolor::green << "BLOCK MINED" << std::endl;
     }
 }
 
@@ -39,6 +41,7 @@ bool miner::mine_block(block &new_block)
         if (ncan < target)
         {
             new_block.set_hash(can);
+            std::cout << termcolor::yellow << "nonce: " << n << " target: " << target << std::endl;
             return true;
         }
     }

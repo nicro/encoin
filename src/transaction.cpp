@@ -2,6 +2,7 @@
 
 #include <sha256.h>
 #include <sstream>
+#include <ecdsa.h>
 
 namespace encoin {
 
@@ -35,43 +36,37 @@ transaction::hash_t transaction::to_hash() const
 void transaction::validate() const
 {
     if (_hash != this->to_hash())
-        throw new transaction_error("hash mismatch");
+        throw transaction_error("hash mismatch");
 
+    if (_inputs.empty()) 
+        throw transaction_error("no inputs provided");
 
-    // verify signature
+    for (auto &input : _inputs)
+        if (input.amount < 0)
+            throw transaction_error("zero input");
+
 
     for (auto &input : _inputs)
     {
-        if (input.amount < 0)
-            throw new transaction_error("zero input");
+        auto pk = key_t{ input.address.begin(), input.address.end() };
+        if (!ec_point::verify(hash_input(input), input.signature, base16_decode(pk)))
+            throw transaction_error("input not verified");
     }
-
-    if (calc_spare_amount() < TRANSACTION_FEE)
-        throw new transaction_error("too small fee");
 }
 
-transaction transaction::create_test(address_t from,
-                                     address_t to,
-                                     address_t reward,
-                                     amount_t amount,
-                                     amount_t requested_amount)
+bytes transaction::hash_input(const input_t &in) const
 {
-    transaction tx;
-    tx._inputs.push_back(input_t{ amount, from });
-    tx._outputs.push_back(output_t{ requested_amount, to });
-    //tx.validate();
-    tx._outputs.push_back(output_t{ tx.calc_spare_amount(), reward });
-    tx._hash = tx.to_hash();
-    return tx;
+    auto hash = (std::stringstream() << in).str();
+    return { hash.begin(), hash.end() };
 }
 
 amount_t transaction::calc_spare_amount() const
 {
-    double total_input_amount = 0.f;
+    amount_t total_input_amount = 0;
     for (auto &input : _inputs)
         total_input_amount += input.amount;
 
-    double total_output_amount = 0.f;
+    amount_t total_output_amount = 0;
     for (auto &output : _outputs)
         total_input_amount += output.amount;
 
