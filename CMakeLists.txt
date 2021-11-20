@@ -11,7 +11,7 @@ endif()
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-file(GLOB_RECURSE SRC_FILES "src/*.cpp")
+file(GLOB_RECURSE SRC_FILES "encoin/*.cpp")
 
 add_executable(encoin ${SRC_FILES})
 find_package(fmt)
@@ -25,7 +25,7 @@ target_link_libraries(encoin OpenSSL::SSL ${SECP256K1})
 target_link_libraries(encoin fmt::fmt)
 include_directories(
     encoin
-    "include/"
+    "encoin/"
     "lib/"
     "/usr/local/include/"
 )
