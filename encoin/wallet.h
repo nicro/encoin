@@ -16,7 +16,7 @@ struct keypair {
 namespace sql = sqlite_orm;
 
 template <typename... Args>
-inline auto make_storage_query() {
+inline auto create_wallet_storage() {
     auto keys = sql::make_table("keys",
         sql::make_column("public_key", &keypair::public_key, sql::primary_key()),
         sql::make_column("private_key", &keypair::private_key)
@@ -26,10 +26,10 @@ inline auto make_storage_query() {
 
 class wallet {
 public:
-    using storage_t = decltype (make_storage_query());
+    using storage_t = decltype(create_wallet_storage());
 
     wallet();
-    ~wallet();
+    ~wallet() = default;
 
     void remove_all();
     pubkey_t create_new_address();

@@ -7,13 +7,9 @@
 namespace encoin {
 
 wallet::wallet()
-    : _storage(make_storage_query())
+    : _storage(create_wallet_storage())
 {
     _storage.sync_schema();
-}
-
-wallet::~wallet()
-{
 }
 
 pubkey_t wallet::create_new_address()

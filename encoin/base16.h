@@ -6,10 +6,8 @@
 
 namespace encoin {
 
-int hex_value(char digit);
-
 template <typename type = unsigned char>
-static std::vector<type> base16_encode(const std::vector<unsigned char> str, bool capital = false)
+static std::vector<type> base16_encode(const std::vector<type> str, bool capital = false)
 {
     std::vector<type> hexstr;
     hexstr.resize(str.size() * 2);
@@ -24,7 +22,7 @@ static std::vector<type> base16_encode(const std::vector<unsigned char> str, boo
 }
 
 template <typename type = unsigned char>
-static std::vector<type> base16_decode(const std::vector<unsigned char> hexstr)
+static std::vector<type> base16_decode(const std::vector<type> hexstr)
 {
     std::vector<type> str;
     str.resize((hexstr.size() + 1) / 2);

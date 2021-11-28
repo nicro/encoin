@@ -4,34 +4,53 @@
 namespace encoin {
 
 blockchain::blockchain()
+    : _storage(create_chain_storage())
 {
-    _blocks.push_back(block::genesis());
-    _blocks.front().calc_hash();
+    _storage.sync_schema();
+}
+
+void blockchain::remove_all()
+{
+    _storage.remove_all<block>();
+    _storage.replace(block::genesis());
 }
 
 void blockchain::push(block block)
 {
-    _blocks.push_back(block);
+    if (block.hash().empty())
+        block.set_hash(block.calc_hash());
+    block.set_prev_hash(last_block().calc_hash());
+    block.save_tx_data();
+
+    _storage.replace(block);
+}
+block blockchain::last_block()
+{
+    // should be optimized not to load all records at once
+    return _storage.get_all<block>().back();
 }
 
 void blockchain::print()
 {
-    for (block &block : _blocks)
+    for (auto &it : _storage.iterate<block>())
     {
-        std::cout << "Block " << ": " << block.hash() << std::endl;
+        it.load_tx_data();
+        std::cout << "Block " << ": " << it.to_string() << std::endl << std::endl;
     }
 }
 
 amount_t blockchain::get_balance(const pubkey_t &addr)
 {
     amount_t balance = 0;
-    for (auto &block : _blocks) 
+    for (auto &block : _storage.iterate<block>())
     {
+        block.load_tx_data();
         for (auto &tx : block.transactions())
         {
             for (auto &in : tx.inputs())
                 if (in.address == addr)
                     balance -= std::min(balance, in.amount);
+
             for (auto &out : tx.outputs())
                 if (out.address == addr)
                     balance += out.amount;
