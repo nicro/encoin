@@ -32,7 +32,6 @@ std::string block::to_string() const
     j["txcount"] = _transactions.size();
     j["prevhash"] = _prev_hash;
 
-
     json txs = json::array();
     for (auto &tx : _transactions)
         txs.push_back(json::parse(tx.to_string()));

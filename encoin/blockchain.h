@@ -11,7 +11,6 @@ namespace encoin {
 
 namespace sql = sqlite_orm;
 
-
 template <typename... Args>
 inline auto create_chain_storage() {
     auto chain = sql::make_table("blockchain",
