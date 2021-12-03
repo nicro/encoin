@@ -33,9 +33,11 @@ public:
     void push(block block);
     void print();
     void remove_all();
+    std::vector<block> get_all();
     block last_block();
 
     amount_t get_balance(const pubkey_t &addr);
+    bool is_empty() { return _storage.count<block>() == 0; }
 
 protected:
     storage_t _storage;

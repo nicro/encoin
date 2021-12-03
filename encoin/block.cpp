@@ -40,7 +40,8 @@ std::string block::to_string() const
     return j.dump(2);
 }
 
-std::string block::calc_hash() const {
+std::string block::calc_hash() const
+{
     std::stringstream buffer;
     buffer << to_string();
 
@@ -60,6 +61,7 @@ block block::genesis()
     const std::string pk = "0431adaf38ba920405bbdb788cb5018027e31c4ad002563f5b8410a855540083b2cd6fc850f3062a3774b65d2754545d61027ca8af3ad5978f1be36e7e57c610ef";
     block genesis;
     genesis.set_prev_hash("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+    genesis.set_height(0);
     transaction tx;
     tx._inputs.push_back(input_t{1000, "FFFFF"});
     tx._outputs.push_back(output_t{1000, pk});
@@ -93,4 +95,3 @@ void block::load_tx_data()
 }
 
 }
-

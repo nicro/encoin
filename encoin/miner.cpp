@@ -4,22 +4,45 @@
 #include <iostream>
 #include <fmt/color.h>
 #include <termcolor/termcolor.hpp>
+#include <settings.h>
+
 
 namespace encoin {
 
 miner::miner(const blockchain &chain, const pubkey_t &reward_address)
     : _chain(chain), _reward_address(reward_address)
 {
+    settings settings;
+    _reward_address = settings.reward_address();
+    if (_reward_address.size() == 0)
+    {
+        std::string addr = wallet().get_active_address();
+        _reward_address = addr;
+        settings.set_reward_address(addr);
+    }
 }
 
 void miner::start()
 {
+    bool ntx_warning = false;
+
     for (;;)
     {
         block new_block;
-        if (!mine_block(new_block))
-            continue;
-        std::cout << termcolor::green << "BLOCK MINED" << std::endl;
+        if (block::TXS_PER_BLOCK <= _pool.size())
+        {
+            if (mine_block(new_block))
+            {
+                std::cout << termcolor::green << "BLOCK MINED" << std::endl;
+                _pool.clear();
+            }
+            ntx_warning = false;
+        }
+        else if (!ntx_warning)
+        {
+            std::cout << termcolor::bright_yellow << std::endl << "Not enough transactions in pool yet for mining" << std::endl;
+            ntx_warning = true;
+        }
     }
 }
 
@@ -41,7 +64,11 @@ bool miner::mine_block(block &new_block)
         if (ncan < target)
         {
             new_block.set_hash(can);
-            std::cout << termcolor::yellow << "nonce: " << n << " target: " << target << std::endl;
+            std::cout << termcolor::yellow
+                      << "Block " << new_block.height()
+                      << ": nonce: " << n
+                      << " target: " << target
+                      << std::endl;
             return true;
         }
     }
@@ -51,6 +78,11 @@ bool miner::mine_block(block &new_block)
 uint64_t miner::get_difficulty() const
 {
     return 0xfffffffffff;
+}
+
+void miner::add_transaction(const transaction &tx)
+{
+    _pool.push_back(tx);
 }
 
 }

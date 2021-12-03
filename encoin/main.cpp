@@ -2,9 +2,14 @@
 #include <wallet.h>
 #include <blockchain.h>
 #include <block.h>
+#include <thread>
 #include <miner.h>
 #include <cxxopts.hpp>
 #include <base16.h>
+#include <iostream>
+#include <chrono>
+#include <thread>
+#include <settings.h>
 
 using namespace encoin;
 
@@ -27,8 +32,6 @@ void undefopt(const std::string &opt)
     exit(-1);
 }
 
-#include <settings.h>
-
 int main(int argc, char **argv)
 {
     cxxopts::Options parser("encoin", "A simple cryptocurrency");
@@ -37,6 +40,8 @@ int main(int argc, char **argv)
         ("c,cmd", "Command type", cxxopts::value<std::string>())
         ("o,opt", "Option type", cxxopts::value<std::string>())
         ("v,value", "Value type", cxxopts::value<std::string>())
+        ("t,to", "Destination type", cxxopts::value<std::string>())
+        ("a,amount", "Amount type", cxxopts::value<amount_t>())
         ("h,help", "Print usage");
 
     parser.parse_positional({"mode", "cmd", "opt", "value"});
@@ -89,7 +94,26 @@ int main(int argc, char **argv)
     }
     else if (mode == "mine")
     {
-        std::cout << "mining mode selected" << std::endl;
+        blockchain chain;
+        if (chain.is_empty())
+        {
+            std::cout << "blockchain is empty, please generate some" << std::endl;
+            std::exit(-1);
+        }
+        wallet wallet;
+        miner miner1{chain, wallet.get_active_address()};
+        std::cout << "Mining started" << std::endl;
+
+        miner1.add_transaction(transaction::create_random());
+        miner1.add_transaction(transaction::create_random());
+        miner1.add_transaction(transaction::create_random());
+        miner1.add_transaction(transaction::create_random());
+        miner1.add_transaction(transaction::create_random());
+        std::cout << "5 new transactions added" << std::endl;
+
+        miner1.start();
+
+
         exit(0);
     }
     else if (mode == "wallet")
@@ -112,7 +136,15 @@ int main(int argc, char **argv)
         }
         else if (cmd == "send")
         {
-            std::cout << "send cmd selected" << std::endl;
+            blockchain chain;
+            wallet wallet;
+            std::string dest = getopt<std::string>("to");
+            amount_t amount = getopt<amount_t>("amount");
+
+            block block1{wallet.send(dest, amount)};
+            chain.push(block1);
+            std::cout << amount << " sent to " << dest << std::endl;
+
             exit(0);
         }
         else undefopt(cmd);

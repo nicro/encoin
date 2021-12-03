@@ -38,6 +38,9 @@ public:
         : std::runtime_error(what) {}
 };
 
+class transaction;
+typedef std::vector<transaction> tx_list;
+
 class transaction
 {
 public:

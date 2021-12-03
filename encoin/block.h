@@ -15,6 +15,8 @@ public:
     block();
     block(std::initializer_list<transaction> txs);
 
+    static constexpr unsigned TXS_PER_BLOCK = 5;
+
     template <typename... Args>
     friend auto create_chain_storage();
 

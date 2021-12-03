@@ -15,15 +15,23 @@ void blockchain::remove_all()
     _storage.replace(block::genesis());
 }
 
+std::vector<block> blockchain::get_all()
+{
+    return _storage.get_all<block>();
+}
+
 void blockchain::push(block block)
 {
     if (block.hash().empty())
         block.set_hash(block.calc_hash());
+
+    block.set_height(last_block().height() + 1);
     block.set_prev_hash(last_block().calc_hash());
     block.save_tx_data();
 
     _storage.replace(block);
 }
+
 block blockchain::last_block()
 {
     // should be optimized not to load all records at once
