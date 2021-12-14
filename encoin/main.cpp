@@ -55,7 +55,7 @@ int main(int argc, char **argv)
 
     std::string mode  = getopt<std::string>("mode");
 
-    if (mode == "blockchain")
+    if (mode == "blockchain") // full node
     {
         std::string cmd   = getopt<std::string>("cmd");
         if (cmd == "print")
@@ -92,31 +92,29 @@ int main(int argc, char **argv)
         }
         else undefopt(cmd);
     }
-    else if (mode == "mine")
+    else if (mode == "mine") // miner node
     {
         blockchain chain;
+        chain.push(transaction::create_random());
+        chain.push(transaction::create_random());
+        chain.push(transaction::create_random());
+        chain.push(transaction::create_random());
+        chain.push(transaction::create_random());
+        std::cout << "5 new transactions added" << std::endl;
+
         if (chain.is_empty())
         {
             std::cout << "blockchain is empty, please generate some" << std::endl;
             std::exit(-1);
         }
-        wallet wallet;
-        miner miner1{chain, wallet.get_active_address()};
+
+        // ToDo: miner should also broadcast new blocks
+        miner miner1{chain, wallet().get_active_address()};
         std::cout << "Mining started" << std::endl;
-
-        miner1.add_transaction(transaction::create_random());
-        miner1.add_transaction(transaction::create_random());
-        miner1.add_transaction(transaction::create_random());
-        miner1.add_transaction(transaction::create_random());
-        miner1.add_transaction(transaction::create_random());
-        std::cout << "5 new transactions added" << std::endl;
-
         miner1.start();
-
-
         exit(0);
     }
-    else if (mode == "wallet")
+    else if (mode == "wallet") // full node
     {
         std::string cmd   = getopt<std::string>("cmd");
         if (cmd == "address")
@@ -141,8 +139,8 @@ int main(int argc, char **argv)
             std::string dest = getopt<std::string>("to");
             amount_t amount = getopt<amount_t>("amount");
 
-            block block1{wallet.send(dest, amount)};
-            chain.push(block1);
+            // ToDo: broadcast to network
+            chain.push(wallet.send(dest, amount));
             std::cout << amount << " sent to " << dest << std::endl;
 
             exit(0);

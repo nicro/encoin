@@ -24,24 +24,18 @@ miner::miner(const blockchain &chain, const pubkey_t &reward_address)
 
 void miner::start()
 {
-    bool ntx_warning = false;
-
+    // ToDo: each 10 minutes
+    // get all new transactions
     for (;;)
     {
         block new_block;
-        if (block::TXS_PER_BLOCK <= _pool.size())
+        for (const auto &tx : _chain.pool())
+            new_block.add(tx);
+        _chain.clear_pool();
+
+        if (mine_block(new_block))
         {
-            if (mine_block(new_block))
-            {
-                std::cout << termcolor::green << "BLOCK MINED" << std::endl;
-                _pool.clear();
-            }
-            ntx_warning = false;
-        }
-        else if (!ntx_warning)
-        {
-            std::cout << termcolor::bright_yellow << std::endl << "Not enough transactions in pool yet for mining" << std::endl;
-            ntx_warning = true;
+            std::cout << termcolor::green << "BLOCK MINED" << std::endl;
         }
     }
 }
@@ -78,11 +72,6 @@ bool miner::mine_block(block &new_block)
 uint64_t miner::get_difficulty() const
 {
     return 0xfffffffffff;
-}
-
-void miner::add_transaction(const transaction &tx)
-{
-    _pool.push_back(tx);
 }
 
 }

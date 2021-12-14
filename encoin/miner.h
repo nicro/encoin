@@ -16,11 +16,9 @@ public:
     bool mine_block(block &new_block);
 
     uint64_t get_difficulty() const;
-    void add_transaction(const transaction &tx);
 
 protected:
     blockchain _chain;
-    tx_list _pool;
     pubkey_t _reward_address;
 };
 

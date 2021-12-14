@@ -1,4 +1,4 @@
-#ifndef BLOCKCHAIN_H
+﻿#ifndef BLOCKCHAIN_H
 #define BLOCKCHAIN_H
 
 #include <vector>
@@ -31,16 +31,22 @@ public:
     blockchain();
 
     void push(block block);
+    void push(const transaction &tx);
+
     void print();
     void remove_all();
     std::vector<block> get_all();
     block last_block();
+
+    tx_list pool() const;
+    void clear_pool();
 
     amount_t get_balance(const pubkey_t &addr);
     bool is_empty() { return _storage.count<block>() == 0; }
 
 protected:
     storage_t _storage;
+    tx_list _pool;
 };
 
 }

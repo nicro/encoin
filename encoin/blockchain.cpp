@@ -32,10 +32,25 @@ void blockchain::push(block block)
     _storage.replace(block);
 }
 
+void blockchain::push(const transaction &tx)
+{
+    _pool.push_back(tx);
+}
+
 block blockchain::last_block()
 {
     // should be optimized not to load all records at once
     return _storage.get_all<block>().back();
+}
+
+tx_list blockchain::pool() const
+{
+    return _pool;
+}
+
+void blockchain::clear_pool()
+{
+    _pool.clear();
 }
 
 void blockchain::print()
