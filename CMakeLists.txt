@@ -2,11 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 project(encoin LANGUAGES CXX)
 
-if (APPLE)
-    # fix for brew openssl package
-    # you might need to set your own path
-    set(OPENSSL_ROOT_DIR "/usr/local/opt/openssl/")
-endif()
+set(OPENSSL_ROOT_DIR "/opt/homebrew/opt/openssl@3/")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -23,9 +19,11 @@ find_library(SECP256K1 secp256k1 PATHS "/usr/lib" "/usr/local/lib" "./secp256k1/
 target_link_libraries(encoin sqlite_orm::sqlite_orm)
 target_link_libraries(encoin OpenSSL::SSL ${SECP256K1})
 target_link_libraries(encoin fmt::fmt)
+
 include_directories(
     encoin
     "encoin/"
     "lib/"
     "/usr/local/include/"
+    "/opt/homebrew/Cellar/boost/1.76.0/include"
 )

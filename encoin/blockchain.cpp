@@ -55,7 +55,7 @@ void blockchain::clear_pool()
 
 void blockchain::print()
 {
-    for (auto &it : _storage.iterate<block>())
+    for (auto it : _storage.iterate<block>())
     {
         it.load_tx_data();
         std::cout << "Block " << ": " << it.to_string() << std::endl << std::endl;
@@ -65,7 +65,7 @@ void blockchain::print()
 amount_t blockchain::get_balance(const pubkey_t &addr)
 {
     amount_t balance = 0;
-    for (auto &block : _storage.iterate<block>())
+    for (auto block : _storage.iterate<block>())
     {
         block.load_tx_data();
         for (auto &tx : block.transactions())

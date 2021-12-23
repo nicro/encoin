@@ -2,7 +2,6 @@
 
 #include <sha256.h>
 #include <iostream>
-#include <fmt/color.h>
 #include <termcolor/termcolor.hpp>
 #include <settings.h>
 
