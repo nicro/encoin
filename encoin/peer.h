@@ -17,7 +17,6 @@ namespace encoin {
 
 class peer {
 public:
-
     peer(net::io_context &ctx, const std::string &host, unsigned short port)
     : _ctx(ctx), _socket(ctx), _host(host), _port(port) {}
 

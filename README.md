@@ -12,4 +12,4 @@ These libraries are required for building:
 * [`termcolor`](https://github.com/ikalnytskyi/termcolor#installation)
 * [`cxxopts`](https://github.com/jarro2783/cxxopts)
 * [`json`](https://github.com/nlohmann/json#package-managers)
-* [`websocketpp`](https://github.com/zaphoyd/websocketpp)
+* [`beast`](https://github.com/boostorg/beast#building)

@@ -12,8 +12,8 @@ void node::on_message(tcp::socket socket)
 {
     try {
         websocket::stream<tcp::socket> ws{std::move(socket)};
-       ws.accept();
-       for(;;)
+        ws.accept();
+        for(;;)
         {
             beast::flat_buffer buffer;
             ws.read(buffer);
