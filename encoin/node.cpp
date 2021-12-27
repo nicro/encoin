@@ -1,91 +1,52 @@
 #include "node.h"
+#include <iostream>
 
 namespace encoin {
 
-node::node(unsigned port)
-    : _port(port), _client(), _server(), _peers()
+std::thread node::create_server_loop()
 {
-    _client.set_access_channels(websocketpp::log::alevel::none);
-    _server.set_access_channels(websocketpp::log::alevel::none);
-
-    _client.init_asio();
-    _server.init_asio();
-
-    _server.set_message_handler(bind(&encoin::node::on_message, this, &_server, _1, _2));
-    _server.set_open_handler(bind(&node::on_open, this, &_server, _1));
+    return std::thread(&node::server_loop, this);
 }
 
-void node::connect_peers()
+void node::on_message(tcp::socket socket)
 {
-    for (auto &peer : _peers)
-    {
-        _client.connect(peer);
-    }
-}
-
-void node::broadcast(const std::string &message)
-{
-    for (auto &peer : _peers)
-    {
-        websocketpp::lib::error_code error;
-        _client.send(peer->get_handle(), message, websocketpp::frame::opcode::value::text, error);
-        if (error)
+    try {
+        websocket::stream<tcp::socket> ws{std::move(socket)};
+       ws.accept();
+       for(;;)
         {
-            std::cout << error.message() << std::endl;
+            beast::flat_buffer buffer;
+            ws.read(buffer);
+            ws.text(ws.got_text()); // set text mode if needed
+            ws.write(buffer.data()); // echo
         }
     }
-}
-
-void node::run_client()
-{
-    _client.run();
-}
-
-void node::run_async()
-{
-    _server_thread = std::thread(&node::run_server, this);
-    _client_thread = std::thread(&node::run_client, this);
-}
-
-void node::await()
-{
-    _server_thread.join();
-    _client_thread.join();
-}
-
-void node::on_message(server *s, websocketpp::connection_hdl hdl, message_ptr msg)
-{
-    std::cout << "message: " << msg->get_payload() << std::endl;
-}
-
-void node::on_open(server *s, websocketpp::connection_hdl hdl)
-{
-    std::cout << "connection opened" << std::endl;
-}
-
-void node::run_server()
-{
-    _server.listen(_port);
-    _server.start_accept();
-    _server.run();
-}
-
-void node::add_peer(const std::string &uri)
-{
-    try
+    catch (std::exception const& e)
     {
-        websocketpp::lib::error_code error;
-        auto new_peer = _client.get_connection(uri, error);
-        if (error)
+        std::cerr << "error: " << e.what() << std::endl;
+    }
+}
+
+void node::server_loop() 
+{
+    try {
+        tcp::acceptor acceptor{_ctx, {net::ip::make_address("127.0.0.1"), _port}};
+        for(;;)
         {
-            std::cout << error.message() << std::endl;
+            tcp::socket socket{_ctx};
+            acceptor.accept(socket);
+            std::thread(&node::on_message, std::move(socket)).detach();
         }
-        _peers.push_back(new_peer);
     }
-    catch (...)
+    catch (std::exception const& e)
     {
-        std::cout << "unexpected error" << std::endl;
+        std::cerr << "error: " << e.what() << std::endl;
     }
+}
+
+void node::add_peer(const std::string &addr, unsigned short port) 
+{
+    _peers.push_back(peer(_ctx, addr, port));
 }
 
 }
