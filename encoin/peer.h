@@ -24,12 +24,15 @@ public:
     void send(const std::string &text);
     void close();
 
+    unsigned short port() const { return _port; }
+    std::string host() const { return _host; }
+    bool is_empty() const { return _host.empty(); }
+
 protected:
     unsigned short _port;
     std::string _host;
     net::io_context &_ctx;
     websocket::stream<tcp::socket> _socket;
-
 };
 
 }

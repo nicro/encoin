@@ -49,4 +49,52 @@ void node::add_peer(const std::string &addr, unsigned short port)
     _peers.push_back(peer(_ctx, addr, port));
 }
 
+peer &node::get_peer(const std::string &host, unsigned short port)
+{
+    for (auto &peer : _peers)
+    {
+        if (peer.host() == host && peer.port() == port)
+        {
+            return peer;
+        }
+    }
+    return _peers.front();
+}
+
+bool node::has_peer(const std::string &host, unsigned short port)
+{
+    for (auto &peer : _peers)
+    {
+        if (peer.host() == host && peer.port() == port)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+peer &node::get_peer(const std::string &host)
+{
+    for (auto &peer : _peers)
+    {
+        if (peer.host() == host)
+        {
+            return peer;
+        }
+    }
+    return _peers.front();
+}
+
+bool node::has_peer(const std::string &host)
+{
+    for (auto &peer : _peers)
+    {
+        if (peer.host() == host)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 }
