@@ -10,7 +10,7 @@ namespace encoin {
 class node {
 public:
 
-    node(unsigned short port = 80) : _port(port) { }
+    node(unsigned short port = 80);
 
     static void on_message(tcp::socket socket);
     void server_loop();

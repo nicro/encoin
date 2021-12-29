@@ -1,7 +1,30 @@
 #include "node.h"
 #include <iostream>
+#include <cstdlib>
+#include <sstream>
 
 namespace encoin {
+
+node::node(unsigned short port)
+    : _port(port)
+{
+    // Format: peers=127.0.0.1:86;127.0.0.1:87
+    if(const char *peers = std::getenv("peers"))
+    {
+        std::istringstream stream(peers);
+        std::string new_peer;
+        while (getline(stream, new_peer, ';'))
+        {
+            if (std::size_t del = new_peer.find(":"); del != std::string::npos)
+            {
+                std::string addr = new_peer.substr(0, del);
+                std::string port = new_peer.substr(del + 1);
+                _peers.push_back(peer(_ctx, addr, std::stoi(port)));
+            }
+        }
+
+    }
+}
 
 std::thread node::create_server_loop()
 {
@@ -34,6 +57,7 @@ void node::server_loop()
         for(;;)
         {
             tcp::socket socket{_ctx};
+            std::cout << "waiting for requests..." << std::endl;
             acceptor.accept(socket);
             std::thread(&node::on_message, std::move(socket)).detach();
         }
