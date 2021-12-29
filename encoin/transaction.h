@@ -6,7 +6,7 @@
 #include <ostream>
 #include <sstream>
 #include <stdexcept>
-#include <ecdsa.h>
+#include <crypto/ecdsa.h>
 #include <iostream>
 
 

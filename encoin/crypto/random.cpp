@@ -1,6 +1,6 @@
 #include "random.h"
 
-#include <sha256.h>
+#include <crypto/sha256.h>
 #include <chrono>
 #include <random>
 

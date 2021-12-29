@@ -1,9 +1,8 @@
 #ifndef KEY_H
 #define KEY_H
 
+#include <crypto/base16.h>
 #include <secp256k1.h>
-#include <ecdsa.h>
-#include <base16.h>
 #include <string>
 #include <tuple>
 #include <vector>

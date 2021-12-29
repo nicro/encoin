@@ -28,6 +28,8 @@ public:
     std::string host() const { return _host; }
     bool is_empty() const { return _host.empty(); }
 
+    void on_connect();
+
 protected:
     unsigned short _port;
     std::string _host;

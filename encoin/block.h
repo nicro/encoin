@@ -4,8 +4,8 @@
 #include <string>
 #include <vector>
 #include <time.h>
-#include <sha256.h>
-#include "transaction.h"
+#include <crypto/sha256.h>
+#include <transaction.h>
 
 namespace encoin {
 

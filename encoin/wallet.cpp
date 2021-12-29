@@ -1,8 +1,8 @@
 #include "wallet.h"
 
-#include <sha256.h>
+#include <crypto/sha256.h>
+#include <crypto/ecdsa.h>
 #include <iostream>
-#include <ecdsa.h>
 
 namespace encoin {
 

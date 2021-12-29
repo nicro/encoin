@@ -7,7 +7,17 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-file(GLOB SRC_FILES CONFIGURE_DEPENDS ${PROJECT_NAME}/*.h ${PROJECT_NAME}/*.cpp)
+file(GLOB SRC_FILES CONFIGURE_DEPENDS
+    ${PROJECT_NAME}/*.h
+    ${PROJECT_NAME}/*.cpp
+    ${PROJECT_NAME}/tasks/*.h
+    ${PROJECT_NAME}/tasks/*.cpp
+    ${PROJECT_NAME}/net/*.h
+    ${PROJECT_NAME}/net/*.cpp
+    ${PROJECT_NAME}/crypto/*.h
+    ${PROJECT_NAME}/crypto/*.cpp
+)
+
 add_executable(${PROJECT_NAME} ${SRC_FILES})
 include_directories(${PROJECT_NAME}/)
 

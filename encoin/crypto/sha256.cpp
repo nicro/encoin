@@ -1,5 +1,4 @@
-
-#include "sha256.h"
+#include <crypto/sha256.h>
 #include <openssl/sha.h>
 #include <sstream>
 #include <iomanip>

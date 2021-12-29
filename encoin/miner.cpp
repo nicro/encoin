@@ -1,6 +1,6 @@
 #include "miner.h"
 
-#include <sha256.h>
+#include <crypto/sha256.h>
 #include <iostream>
 #include <termcolor/termcolor.hpp>
 #include <settings.h>

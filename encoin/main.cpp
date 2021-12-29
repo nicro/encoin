@@ -5,7 +5,7 @@
 #include <thread>
 #include <miner.h>
 #include <cxxopts.hpp>
-#include <base16.h>
+#include <crypto/base16.h>
 #include <iostream>
 #include <chrono>
 #include <thread>
@@ -31,6 +31,11 @@ void undefopt(const std::string &opt)
     std::cerr << opt << " is an undefined parameter" << std::endl;
     exit(-1);
 }
+
+#include <net/peer.h>
+#include <net/node.h>
+#include <tasks/discovery.h>
+
 
 int main(int argc, char **argv)
 {

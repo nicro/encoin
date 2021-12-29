@@ -1,11 +1,11 @@
 #include "ecdsa.h"
 
-#include "random.h"
+#include <crypto/random.h>
+#include <crypto/sha256.h>
 #include <chrono>
 #include <random>
 #include <tuple>
 #include <vector>
-#include <sha256.h>
 #include <exception>
 #include <iostream>
 
@@ -31,7 +31,7 @@ ec_point::~ec_point()
     secp256k1_context_destroy(_ctx);
 }
 
-ec_point::ec_point(const key_t& private_key)
+ec_point::ec_point(const key_t &private_key)
     : _ctx(secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY))
 {
     _privkey = encoin::base16_decode(private_key);
@@ -85,7 +85,7 @@ bool ec_point::verify(bytes msgHash, const bytes sign, const key_t pub_key)
     if (pub_key.size() != PUBLIC_KEY_SIZE)
         throw ec_point_exception("Invalid public key size: " + std::to_string(pub_key.size()));
 
-    secp256k1_context* ctx = secp256k1_context_create(SECP256K1_CONTEXT_VERIFY);
+    secp256k1_context *ctx = secp256k1_context_create(SECP256K1_CONTEXT_VERIFY);
 
     secp256k1_pubkey pubkey;
     if (!secp256k1_ec_pubkey_parse(ctx, &pubkey, pub_key.data(), pub_key.size()))

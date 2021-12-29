@@ -1,8 +1,8 @@
 #include "transaction.h"
 
-#include <sha256.h>
+#include <crypto/sha256.h>
 #include <sstream>
-#include <ecdsa.h>
+#include <crypto/ecdsa.h>
 #include <nlohmann/json.hpp>
 
 namespace encoin {

@@ -1,7 +1,7 @@
 #ifndef WALLET_H
 #define WALLET_H
 
-#include <ecdsa.h>
+#include <crypto/ecdsa.h>
 #include <transaction.h>
 #include <sqlite_orm/sqlite_orm.h>
 #include <list>
