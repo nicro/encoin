@@ -3,7 +3,6 @@
 #include <fstream>
 #include <sstream>
 
-
 namespace encoin {
 
 void settings::load()

@@ -2,14 +2,13 @@
 #include <wallet.h>
 #include <blockchain.h>
 #include <block.h>
-#include <thread>
 #include <miner.h>
 #include <cxxopts.hpp>
 #include <crypto/base16.h>
-#include <iostream>
-#include <chrono>
-#include <thread>
 #include <settings.h>
+
+//#include <thread>
+//#include <chrono>
 
 using namespace encoin;
 
@@ -56,7 +55,7 @@ int main(int argc, char **argv)
     if      (opt == "print-blockchain") // full node
     {
         blockchain().print();
-        exit(0);
+        return 0;
     }
     else if (opt == "fill-blockchain-random") // local
     {
@@ -83,7 +82,7 @@ int main(int argc, char **argv)
         chain.push(b3);
 
         std::cout << "tables created" << std::endl;
-        exit(0);
+        return 0;
     }
     else if (opt == "mine") // miner node
     {
@@ -105,14 +104,14 @@ int main(int argc, char **argv)
         miner miner1{chain, wallet().get_active_address()};
         std::cout << "Mining started" << std::endl;
         miner1.start();
-        exit(0);
+        return 0;
     }
     else if (opt == "get-wallet-address") // full node
     {
         wallet wallet;
         auto &&address = wallet.get_active_address();
         std::cout << "your current address is " << address << std::endl;
-        exit(0);
+        return 0;
     }
     else if (opt == "wallet-balance") // full node
     {
@@ -120,7 +119,7 @@ int main(int argc, char **argv)
         blockchain chain;
         std::cout << "current balance of " << value.substr(0, 16) << "... address is "
                   << chain.get_balance(value) << " encoins!" << std::endl;
-        exit(0);
+        return 0;
     }
     else if (opt == "wallet-send") // full node
     {
@@ -132,7 +131,7 @@ int main(int argc, char **argv)
         // ToDo: broadcast to network
         chain.push(wallet.send(dest, amount));
         std::cout << amount << " sent to " << dest << std::endl;
-        exit(0);
+        return 0;
     }
     else if (opt == "set") // local
     {
@@ -148,16 +147,22 @@ int main(int argc, char **argv)
             {
                 settings.set_reward_address(sub2);
                 std::cout << "reward address updated to " << sub2 << std::endl;
-                exit(0);
+                return 0;
             }
             else if (sub1 == "main_net")
             {
                 settings.set_main_net(sub2 == "true");
                 std::cout << "mode set to " << (sub2 == "true" ? "main net" : "dev net") << std::endl;
-                exit(0);
+                return 0;
+            }
+            else
+            {
+                std::cout << "error: setting not found" << std::endl;
+                return -1;
             }
         }
-        exit(0);
+        std::cout << "error: wrong setting format" << std::endl;
+        return -1;
     }
     else if (opt == "get") // local
     {
@@ -172,6 +177,11 @@ int main(int argc, char **argv)
         {
             std::cout << "is main net: " << settings.main_net() << std::endl;
             exit(0);
+        }
+        else
+        {
+            std::cout << "error: setting not found" << std::endl;
+            return -1;
         }
     }
     else undefopt(opt);
