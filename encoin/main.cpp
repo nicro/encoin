@@ -32,24 +32,17 @@ void undefopt(const std::string &opt)
     exit(-1);
 }
 
-#include <net/peer.h>
-#include <net/node.h>
-#include <tasks/discovery.h>
-
-
 int main(int argc, char **argv)
 {
     cxxopts::Options parser("encoin", "A simple cryptocurrency");
     parser.add_options()
-        ("m,mode", "Mode type", cxxopts::value<std::string>())
-        ("c,cmd", "Command type", cxxopts::value<std::string>())
-        ("o,opt", "Option type", cxxopts::value<std::string>())
+        ("c,opt", "Command type", cxxopts::value<std::string>())
         ("v,value", "Value type", cxxopts::value<std::string>())
         ("t,to", "Destination type", cxxopts::value<std::string>())
         ("a,amount", "Amount type", cxxopts::value<amount_t>())
         ("h,help", "Print usage");
 
-    parser.parse_positional({"mode", "cmd", "opt", "value"});
+    parser.parse_positional({"opt", "value"});
     cmdopts = parser.parse(argc, argv);
 
     if (cmdopts.count("help"))
@@ -58,46 +51,41 @@ int main(int argc, char **argv)
         exit(0);
     }
 
-    std::string mode  = getopt<std::string>("mode");
+    std::string opt  = getopt<std::string>("opt");
 
-    if (mode == "blockchain") // full node
+    if      (opt == "print-blockchain") // full node
     {
-        std::string cmd   = getopt<std::string>("cmd");
-        if (cmd == "print")
-        {
-            blockchain().print();
-            exit(0);
-        }
-        else if (cmd == "generate_random")
-        {
-            blockchain chain;
-            chain.remove_all();
-
-            block b1 = {
-                transaction::create_random(),
-                transaction::create_random(),
-                transaction::create_random()
-            };
-
-            wallet wallet1;
-            const auto to = wallet1.create_new_address();
-
-            block b2 = {
-                transaction::create(wallet1.create_new_address(), to, 220),
-                transaction::create(wallet1.create_new_address(), to, 54)
-            };
-            block b3;
-
-            chain.push(b1);
-            chain.push(b2);
-            chain.push(b3);
-
-            std::cout << "tables created" << std::endl;
-            exit(0);
-        }
-        else undefopt(cmd);
+        blockchain().print();
+        exit(0);
     }
-    else if (mode == "mine") // miner node
+    else if (opt == "fill-blockchain-random") // local
+    {
+        blockchain chain;
+        chain.remove_all();
+
+        block b1 = {
+            transaction::create_random(),
+            transaction::create_random(),
+            transaction::create_random()
+        };
+
+        wallet wallet1;
+        const auto to = wallet1.create_new_address();
+
+        block b2 = {
+            transaction::create(wallet1.create_new_address(), to, 220),
+            transaction::create(wallet1.create_new_address(), to, 54)
+        };
+        block b3;
+
+        chain.push(b1);
+        chain.push(b2);
+        chain.push(b3);
+
+        std::cout << "tables created" << std::endl;
+        exit(0);
+    }
+    else if (opt == "mine") // miner node
     {
         blockchain chain;
         chain.push(transaction::create_random());
@@ -119,78 +107,73 @@ int main(int argc, char **argv)
         miner1.start();
         exit(0);
     }
-    else if (mode == "wallet") // full node
+    else if (opt == "get-wallet-address") // full node
     {
-        std::string cmd   = getopt<std::string>("cmd");
-        if (cmd == "address")
-        {
-            wallet wallet;
-            auto &&address = wallet.get_active_address();
-            std::cout << "your current address is " << address << std::endl;
-            exit(0);
-        }
-        else if (cmd == "balance")
-        {
-            std::string opt   = getopt<std::string>("opt");
-            blockchain chain;
-            std::cout << "current balance of " << opt.substr(0, 16) << "... address is "
-                      << chain.get_balance(opt) << " encoins!" << std::endl;
-            exit(0);
-        }
-        else if (cmd == "send")
-        {
-            blockchain chain;
-            wallet wallet;
-            std::string dest = getopt<std::string>("to");
-            amount_t amount = getopt<amount_t>("amount");
-
-            // ToDo: broadcast to network
-            chain.push(wallet.send(dest, amount));
-            std::cout << amount << " sent to " << dest << std::endl;
-
-            exit(0);
-        }
-        else undefopt(cmd);
+        wallet wallet;
+        auto &&address = wallet.get_active_address();
+        std::cout << "your current address is " << address << std::endl;
+        exit(0);
     }
-    else if (mode == "settings")
+    else if (opt == "wallet-balance") // full node
     {
-        std::string cmd   = getopt<std::string>("cmd");
-        std::string opt   = getopt<std::string>("opt");
+        std::string value = getopt<std::string>("value");
+        blockchain chain;
+        std::cout << "current balance of " << value.substr(0, 16) << "... address is "
+                  << chain.get_balance(value) << " encoins!" << std::endl;
+        exit(0);
+    }
+    else if (opt == "wallet-send") // full node
+    {
+        blockchain chain;
+        wallet wallet;
+        std::string dest = getopt<std::string>("to");
+        amount_t amount = getopt<amount_t>("amount");
+
+        // ToDo: broadcast to network
+        chain.push(wallet.send(dest, amount));
+        std::cout << amount << " sent to " << dest << std::endl;
+        exit(0);
+    }
+    else if (opt == "set") // local
+    {
         settings settings;
+        std::string value = getopt<std::string>("value");
 
-        if (cmd == "set")
+        if (auto del = value.find('='); del != std::string::npos)
         {
-            std::string value = getopt<std::string>("value");
+            std::string sub1 = value.substr(0, del);
+            std::string sub2 = value.substr(del + 1);
 
-            if (opt == "reward_address")
+            if (sub1 == "reward_address")
             {
-                settings.set_reward_address(value);
-                std::cout << "reward address updated to " << value << std::endl;
+                settings.set_reward_address(sub2);
+                std::cout << "reward address updated to " << sub2 << std::endl;
                 exit(0);
             }
-            else if (opt == "main_net")
+            else if (sub1 == "main_net")
             {
-                settings.set_main_net(value == "true");
-                std::cout << "mode set to " << (value == "true" ? "main net" : "dev net") << std::endl;
+                settings.set_main_net(sub2 == "true");
+                std::cout << "mode set to " << (sub2 == "true" ? "main net" : "dev net") << std::endl;
                 exit(0);
             }
+        }
+        exit(0);
+    }
+    else if (opt == "get") // local
+    {
+        settings settings;
+        std::string value = getopt<std::string>("value");
+        if (value == "reward_address")
+        {
+            std::cout << "reward address: " << settings.reward_address() << std::endl;
             exit(0);
         }
-        else if (cmd == "get")
+        else if (value == "main_net")
         {
-            if (opt == "reward_address")
-            {
-                std::cout << "reward address: " << settings.reward_address() << std::endl;
-                exit(0);
-            }
-            else if (opt == "main_net")
-            {
-                std::cout << "main_net: " << settings.main_net() << std::endl;
-                exit(0);
-            }
-            else undefopt(opt);
+            std::cout << "is main net: " << settings.main_net() << std::endl;
+            exit(0);
         }
     }
-    else undefopt(mode);
+    else undefopt(opt);
     return 0;
 }
