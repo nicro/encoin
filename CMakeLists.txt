@@ -2,16 +2,12 @@ cmake_minimum_required(VERSION 3.5)
 
 project(encoin LANGUAGES CXX)
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 file(GLOB SRC_FILES CONFIGURE_DEPENDS
     ${PROJECT_NAME}/*.h
     ${PROJECT_NAME}/*.cpp
-    ${PROJECT_NAME}/tasks/*.h
-    ${PROJECT_NAME}/tasks/*.cpp
     ${PROJECT_NAME}/net/*.h
     ${PROJECT_NAME}/net/*.cpp
     ${PROJECT_NAME}/crypto/*.h
@@ -31,4 +27,5 @@ target_link_libraries(${PROJECT_NAME} OpenSSL::SSL ${SECP256K1})
 
 if (UNIX)
     include_directories("/usr/local/include/")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 endif (UNIX)

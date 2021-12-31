@@ -4,8 +4,11 @@
 #include <net/peer.h>
 #include <thread>
 #include <vector>
+#include <nlohmann/json.hpp>
 
 namespace encoin {
+
+using nlohmann::json;
 
 class node {
 public:

@@ -6,6 +6,7 @@
 #include <cxxopts.hpp>
 #include <crypto/base16.h>
 #include <settings.h>
+#include <net/node.h>
 
 //#include <thread>
 //#include <chrono>
@@ -25,21 +26,15 @@ T getopt (const std::string &opt)
     exit(-1);
 }
 
-void undefopt(const std::string &opt) 
-{
-    std::cerr << opt << " is an undefined parameter" << std::endl;
-    exit(-1);
-}
-
 int main(int argc, char **argv)
 {
     cxxopts::Options parser("encoin", "A simple cryptocurrency");
     parser.add_options()
-        ("c,opt", "Command type", cxxopts::value<std::string>())
-        ("v,value", "Value type", cxxopts::value<std::string>())
-        ("t,to", "Destination type", cxxopts::value<std::string>())
-        ("a,amount", "Amount type", cxxopts::value<amount_t>())
-        ("h,help", "Print usage");
+        ("c,opt",    "Command",     cxxopts::value<std::string>())
+        ("v,value",  "Value",       cxxopts::value<std::string>())
+        ("t,to",     "Destination", cxxopts::value<std::string>())
+        ("a,amount", "Amount",      cxxopts::value<amount_t>())
+        ("h,help",   "Print usage");
 
     parser.parse_positional({"opt", "value"});
     cmdopts = parser.parse(argc, argv);
@@ -52,88 +47,27 @@ int main(int argc, char **argv)
 
     std::string opt  = getopt<std::string>("opt");
 
-    if      (opt == "print-blockchain") // full node
+    if (opt == "get") // local
     {
-        blockchain().print();
-        return 0;
-    }
-    else if (opt == "fill-blockchain-random") // local
-    {
-        blockchain chain;
-        chain.remove_all();
-
-        block b1 = {
-            transaction::create_random(),
-            transaction::create_random(),
-            transaction::create_random()
-        };
-
-        wallet wallet1;
-        const auto to = wallet1.create_new_address();
-
-        block b2 = {
-            transaction::create(wallet1.create_new_address(), to, 220),
-            transaction::create(wallet1.create_new_address(), to, 54)
-        };
-        block b3;
-
-        chain.push(b1);
-        chain.push(b2);
-        chain.push(b3);
-
-        std::cout << "tables created" << std::endl;
-        return 0;
-    }
-    else if (opt == "mine") // miner node
-    {
-        blockchain chain;
-        chain.push(transaction::create_random());
-        chain.push(transaction::create_random());
-        chain.push(transaction::create_random());
-        chain.push(transaction::create_random());
-        chain.push(transaction::create_random());
-        std::cout << "5 new transactions added" << std::endl;
-
-        if (chain.is_empty())
-        {
-            std::cout << "blockchain is empty, please generate some" << std::endl;
-            std::exit(-1);
-        }
-
-        // ToDo: miner should also broadcast new blocks
-        miner miner1{chain, wallet().get_active_address()};
-        std::cout << "Mining started" << std::endl;
-        miner1.start();
-        return 0;
-    }
-    else if (opt == "get-wallet-address") // full node
-    {
-        wallet wallet;
-        auto &&address = wallet.get_active_address();
-        std::cout << "your current address is " << address << std::endl;
-        return 0;
-    }
-    else if (opt == "wallet-balance") // full node
-    {
+        settings settings;
         std::string value = getopt<std::string>("value");
-        blockchain chain;
-        std::cout << "current balance of " << value.substr(0, 16) << "... address is "
-                  << chain.get_balance(value) << " encoins!" << std::endl;
-        return 0;
+        if (value == "reward_address")
+        {
+            std::cout << "reward address: " << settings.reward_address() << std::endl;
+            exit(0);
+        }
+        else if (value == "main_net")
+        {
+            std::cout << "is main net: " << settings.main_net() << std::endl;
+            exit(0);
+        }
+        else
+        {
+            std::cout << "error: setting not found" << std::endl;
+            return -1;
+        }
     }
-    else if (opt == "wallet-send") // full node
-    {
-        blockchain chain;
-        wallet wallet;
-        std::string dest = getopt<std::string>("to");
-        amount_t amount = getopt<amount_t>("amount");
-
-        // ToDo: broadcast to network
-        chain.push(wallet.send(dest, amount));
-        std::cout << amount << " sent to " << dest << std::endl;
-        return 0;
-    }
-    else if (opt == "set") // local
+    if (opt == "set") // local
     {
         settings settings;
         std::string value = getopt<std::string>("value");
@@ -164,26 +98,44 @@ int main(int argc, char **argv)
         std::cout << "error: wrong setting format" << std::endl;
         return -1;
     }
-    else if (opt == "get") // local
+
+    blockchain chain;
+    node node;
+
+    if (opt == "print-blockchain") // full node
     {
-        settings settings;
-        std::string value = getopt<std::string>("value");
-        if (value == "reward_address")
-        {
-            std::cout << "reward address: " << settings.reward_address() << std::endl;
-            exit(0);
-        }
-        else if (value == "main_net")
-        {
-            std::cout << "is main net: " << settings.main_net() << std::endl;
-            exit(0);
-        }
-        else
-        {
-            std::cout << "error: setting not found" << std::endl;
-            return -1;
-        }
+        chain.print();
+        return 0;
     }
-    else undefopt(opt);
-    return 0;
+    if (opt == "print-wallet") // full node
+    {
+        wallet wallet;
+        for (auto &addr : wallet.addresses())
+        {
+            // todo: flag that would print the whole address
+            std::cout << "address: [" << addr.substr(0, 16) << "... ] "
+                      << "balance: " << chain.get_balance(addr) << std::endl;
+        }
+        return 0;
+    }
+    if (opt == "mine") // miner node
+    {
+        miner miner1{chain, wallet().get_active_address()};
+        std::cout << "Mining started" << std::endl;
+        miner1.start();
+        return 0;
+    }
+    if (opt == "wallet-send") // full node
+    {
+        wallet wallet;
+        std::string dest = getopt<std::string>("to");
+        amount_t amount = getopt<amount_t>("amount");
+
+        chain.push(wallet.send(dest, amount));
+        std::cout << amount << " sent to " << dest << std::endl;
+        return 0;
+    }
+
+    std::cerr << opt << " is an undefined parameter" << std::endl;
+    return -1;
 }

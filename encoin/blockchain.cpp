@@ -82,4 +82,32 @@ amount_t blockchain::get_balance(const pubkey_t &addr)
     return balance;
 }
 
+blockchain blockchain::create_random_filled()
+{
+    blockchain chain;
+    chain.remove_all();
+
+    block b1 = {
+        transaction::create_random(),
+        transaction::create_random(),
+        transaction::create_random()
+    };
+
+    wallet wallet1;
+    const auto to = wallet1.create_new_address();
+
+    block b2 = {
+        transaction::create(wallet1.create_new_address(), to, 220),
+        transaction::create(wallet1.create_new_address(), to, 54)
+    };
+    block b3;
+
+    chain.push(b1);
+    chain.push(b2);
+    chain.push(b3);
+
+    return chain;
+}
+
+
 }

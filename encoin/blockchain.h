@@ -44,6 +44,8 @@ public:
     amount_t get_balance(const pubkey_t &addr);
     bool is_empty() { return _storage.count<block>() == 0; }
 
+    static blockchain create_random_filled();
+
 protected:
     storage_t _storage;
     tx_list _pool;

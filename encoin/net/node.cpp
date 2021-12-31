@@ -1,3 +1,4 @@
+#include <net/message.h>
 #include <net/node.h>
 #include <iostream>
 #include <cstdlib>
@@ -54,7 +55,21 @@ void node::wait_server()
 
 std::string node::on_message(const std::string &msg)
 {
-    return msg + " someotherdata";
+    // if (type == "new_tx") task = new_tx_task
+    // if (type == "new_block") task = new_block_task
+    // if (type == "get_peers") return peers
+    // if (type == "get_pool") return txs from pool
+    // if (type == "get_latest_block") return latest_block
+    // if (type == "get_chain") return whole chain
+
+    json j = json::parse(msg);
+    std::string type = message::parse_type(j);
+    if (auto *message = message::match<new_tx_message>(type))
+    {
+        auto resp = message->make_response(this, j);
+        return delete message, resp;
+    }
+    return "undefined type";
 }
 
 void node::message_handler(tcp::socket socket)
