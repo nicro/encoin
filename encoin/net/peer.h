@@ -21,7 +21,7 @@ public:
     : _ctx(ctx), _socket(ctx), _host(host), _port(port) {}
 
     void connect();
-    void send(const std::string &text);
+    std::string send(const std::string &text);
     void close();
 
     unsigned short port() const { return _port; }

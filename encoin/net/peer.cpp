@@ -14,23 +14,33 @@ void peer::connect()
         _socket.handshake(_host, "/");
         on_connect();
     }
-    catch (std::exception const& e)
+    catch (std::exception const &e)
     {
-        std::cerr << "error: " << e.what() << std::endl;
+        std::cerr << "error on connect: " << e.what() << std::endl;
     }
 }
 
 void peer::on_connect()
 {
-    this->send("Hello :)");
+    //this->send("Hello :)");
 }
 
-void peer::send(const std::string &text) 
+std::string peer::send(const std::string &text)
 {
-    beast::flat_buffer buffer;
-    _socket.write(net::buffer(std::string(text)));
-    _socket.read(buffer);
-    std::cout << "client response: " << beast::make_printable(buffer.data()) << std::endl;
+    try
+    {
+        beast::flat_buffer buffer;
+        _socket.write(net::buffer(text));
+        _socket.read(buffer);
+        return beast::buffers_to_string(buffer.data());
+        //std::cout << "client response: " << beast::make_printable(buffer.data()) << std::endl;
+    }
+    catch (const beast::system_error &error)
+    {
+        if(error.code() != websocket::error::closed)
+            std::cerr << "Send error: " << error.code().message() << std::endl;
+        return "";
+    }
 }
 
 void peer::close()

@@ -7,6 +7,7 @@
 #include <crypto/base16.h>
 #include <settings.h>
 #include <net/node.h>
+//#include <net/message.h>
 
 //#include <thread>
 //#include <chrono>
@@ -28,6 +29,24 @@ T getopt (const std::string &opt)
 
 int main(int argc, char **argv)
 {
+//    blockchain bc;
+//    node client{bc, 5001};
+//    node srv{bc, 5002};
+
+//    srv.run_server();
+//    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+//    client.add_peer("127.0.0.1", 5002);
+//    for (auto &peer : client.peers())
+//    {
+//        std::cout << "peer on port: " << peer.port() << std::endl;
+//        peer.connect();
+//    }
+
+//    std::cout << client.dispatch<new_tx_message>() << std::endl;
+//    srv.wait_server();
+//    return 0;
+
     cxxopts::Options parser("encoin", "A simple cryptocurrency");
     parser.add_options()
         ("c,opt",    "Command",     cxxopts::value<std::string>())
@@ -44,6 +63,7 @@ int main(int argc, char **argv)
         std::cout << parser.help() << std::endl;
         exit(0);
     }
+
 
     std::string opt  = getopt<std::string>("opt");
 
@@ -100,7 +120,7 @@ int main(int argc, char **argv)
     }
 
     blockchain chain;
-    node node;
+    node node{chain};
 
     if (opt == "print-blockchain") // full node
     {

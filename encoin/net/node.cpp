@@ -6,8 +6,8 @@
 
 namespace encoin {
 
-node::node(unsigned short port)
-    : _port(port)
+node::node(blockchain &bc, unsigned short port)
+    : _chain(bc), _port(port)
 {
     add_peers_from_env();
     for (auto &peer : _peers)
@@ -55,19 +55,29 @@ void node::wait_server()
 
 std::string node::on_message(const std::string &msg)
 {
-    // if (type == "new_tx") task = new_tx_task
-    // if (type == "new_block") task = new_block_task
+    // if (type == "new_tx") task = new_tx_task => broadcast(no response)
+    // if (type == "new_block") task = new_block_task => broadcast(no response)
     // if (type == "get_peers") return peers
     // if (type == "get_pool") return txs from pool
     // if (type == "get_latest_block") return latest_block
     // if (type == "get_chain") return whole chain
 
-    json j = json::parse(msg);
-    std::string type = message::parse_type(j);
-    if (auto *message = message::match<new_tx_message>(type))
+    json j;
+    try
     {
-        auto resp = message->make_response(this, j);
-        return delete message, resp;
+        j = json::parse(msg);
+    }
+    catch (json::parse_error& ex)
+    {
+        return "invalid json [" + msg + "]";
+    }
+
+    std::string type = message::parse_type(j);
+
+    if (auto *msgptr = message::match<new_tx_message>(type))
+    {
+        auto resp = msgptr->make_response(this, j);
+        return delete msgptr, resp.dump();
     }
     return "undefined type";
 }
@@ -92,7 +102,7 @@ void node::message_handler(tcp::socket socket)
     }
     catch (std::exception const& e)
     {
-        std::cerr << "error: " << e.what() << std::endl;
+        std::cerr << "error on message: " << e.what() << std::endl;
     }
 }
 
@@ -116,7 +126,7 @@ void node::server_loop()
 
 void node::add_peer(const std::string &addr, unsigned short port) 
 {
-    _peers.push_back(peer(_ctx, addr, port));
+    _peers.push_back({_ctx, addr, port});
 }
 
 peer &node::get_peer(const std::string &host, unsigned short port)

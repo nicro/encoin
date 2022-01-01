@@ -5,6 +5,8 @@
 #include <thread>
 #include <vector>
 #include <nlohmann/json.hpp>
+#include <blockchain.h>
+#include <variant>
 
 namespace encoin {
 
@@ -13,7 +15,7 @@ using nlohmann::json;
 class node {
 public:
 
-    node(unsigned short port = 80);
+    node(blockchain&, unsigned short port = 80);
     ~node();
 
     void message_handler(tcp::socket socket);
@@ -36,7 +38,23 @@ public:
 
     void add_peers_from_env();
 
+    template <class msg_type>
+    inline std::string dispatch(typename msg_type::arg_type data = {})
+    {
+        auto req = msg_type().make_request(this, data).dump();
+        if (!_peers.size()) return "";
+        return _peers.front().send(req);
+    }
+
+    template <class msg_type>
+    inline void broadcast(typename msg_type::arg_type data = {})
+    {
+        auto req = msg_type().make_request(this, data).dump();
+        for (auto &peer : _peers) peer.send(req);
+    }
+
 public:
+    blockchain &_chain;
     std::vector<peer> _peers;
     net::io_context _ctx;
     std::thread _srv_thread;

@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <variant>
 
 namespace encoin {
 
@@ -13,12 +14,15 @@ class node;
 
 class message {
 public:
-    virtual json make_response(node*, json) = 0;
-    virtual json make_request(node*, void* = nullptr) = 0;
-
+    message() = default;
+    virtual ~message() {};
     virtual std::string type() = 0;
+    virtual json make_response(node*, json) = 0;
 
-    virtual ~message() = 0;
+    static std::string parse_type(const json &j)
+    {
+        return j.contains("type") ? j["type"] : "";
+    }
 
     template <class arg>
     static message *match(const std::string &name)
@@ -39,51 +43,31 @@ public:
         }
         return match<arg2, args...>(name);
     }
+};
 
-    static std::string parse_type(const json &j)
-    {
-        return j.contains("type") ? j["type"] : "";
-    }
+template <class rtype = json, class atype = std::monostate>
+class callable_message: public message {
+public:
+    using arg_type = atype;
+    virtual rtype make_request(node*, atype) = 0;
+};
 
 struct json_wrapper: public json {
     json_wrapper() : json() {}
 
-    std::string type()
-    {
-        return contains("type") ? at("type").get<std::string>() : "";
-    }
-    void set_type(const std::string &type)
-    {
-        (*this)["type"] = type;
-    }
+    std::string type();
+    void set_type(const std::string &type);
 
-    json payload()
-    {
-        return contains("payload") ? at("payload") : json{};
-    }
-    void set_payload(const json &payload)
-    {
-        (*this)["payload"] = payload;
-    }
+    json payload();
+    void set_payload(const json &payload);
 
-    std::string status()
-    {
-        return contains("status") ? at("status").get<std::string>() : "";
-    }
-    void set_status(const std::string &status)
-    {
-        (*this)["status"] = status;
-    }
+    std::string status();
+    void set_status(const std::string &status);
 
-    json as_plain()
-    {
-        return *reinterpret_cast<json*>(this);
-    }
+    json as_plain();
 };
 
-};
-
-class new_tx_message: public message {
+class new_tx_message: public callable_message<> {
 public:
     new_tx_message() = default;
 
@@ -94,12 +78,11 @@ public:
         j.set_status("success");
         return j.as_plain();
     }
-
-    json make_request(node *node, void*) override
+    json make_request(node *node, std::monostate) override
     {
         json_wrapper j;
         j.set_type(type());
-        return j;
+        return j.as_plain();
     }
 
     std::string type() override
