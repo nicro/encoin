@@ -27,6 +27,8 @@ T getopt (const std::string &opt)
     exit(-1);
 }
 
+//#include <net/message.h>
+
 int main(int argc, char **argv)
 {
 //    blockchain bc;
@@ -43,7 +45,7 @@ int main(int argc, char **argv)
 //        peer.connect();
 //    }
 
-//    std::cout << client.dispatch<new_tx_message>() << std::endl;
+//    std::cout << client.dispatch<get_pool_message>() << std::endl;
 //    srv.wait_server();
 //    return 0;
 

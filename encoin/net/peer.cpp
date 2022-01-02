@@ -51,4 +51,9 @@ void peer::close()
     }
 }
 
+std::string peer::to_string() const
+{
+    return _host + ":" + std::to_string(_port);
+}
+
 }

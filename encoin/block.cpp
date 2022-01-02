@@ -40,6 +40,20 @@ std::string block::to_string() const
     return j.dump(2);
 }
 
+block block::from_string(const std::string &string)
+{
+    block bl;
+    json j = json::parse(string);
+    bl._nonce = j["nonce"];
+    bl._height = j["height"];
+    bl._timestamp = j["timestamp"];
+    for (auto &item : j["txs"].array())
+    {
+        bl._transactions.push_back(transaction::from_string(item));
+    }
+    return bl;
+}
+
 std::string block::calc_hash() const
 {
     std::stringstream buffer;

@@ -74,7 +74,8 @@ std::string node::on_message(const std::string &msg)
 
     std::string type = message::parse_type(j);
 
-    if (auto *msgptr = message::match<new_tx_message>(type))
+    if (auto *msgptr = message::match<new_tx_message, new_block_message, get_peers_message,
+            get_pool_message, get_latest_block_message, get_chain_message>(type))
     {
         auto resp = msgptr->make_response(this, j);
         return delete msgptr, resp.dump();
@@ -96,7 +97,10 @@ void node::message_handler(tcp::socket socket)
             ws.text(ws.got_text()); // set text mode if needed
 
             std::string reqstr = beast::buffers_to_string(buffer.data());
-            ws.write(net::buffer(on_message(reqstr)));
+            if (std::string rsp = on_message(reqstr); !rsp.empty())
+            {
+                ws.write(net::buffer(rsp));
+            }
         }
         on_close();
     }

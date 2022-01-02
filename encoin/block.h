@@ -23,6 +23,7 @@ public:
     std::string to_string() const;
     std::string calc_hash() const;
     static block genesis();
+    static block from_string(const std::string &string);
 
     void set_height(const unsigned &height) { _height = height; }
     unsigned height() const { return _height; }
@@ -35,6 +36,9 @@ public:
 
     std::string prev_hash() const { return _prev_hash; }
     void set_prev_hash(const std::string &prev) { _prev_hash = prev; }
+
+    time_t timestamp() const { return _timestamp; }
+    void set_timestamp(const time_t &time) { _timestamp = time; }
 
     std::vector<transaction> transactions() const { return _transactions; }
 

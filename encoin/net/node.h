@@ -31,6 +31,7 @@ public:
     bool has_peer(const std::string &host);
 
     std::vector<peer> &peers() { return _peers; }
+    blockchain &chain() { return _chain; }
 
     void run_server();
     void wait_server();

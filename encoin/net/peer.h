@@ -24,6 +24,7 @@ public:
     std::string send(const std::string &text);
     void close();
 
+    std::string to_string() const;
     unsigned short port() const { return _port; }
     std::string host() const { return _host; }
     bool is_empty() const { return _host.empty(); }

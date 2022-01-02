@@ -62,6 +62,12 @@ void blockchain::print()
     }
 }
 
+std::string blockchain::to_string() const
+{
+    // todo: implement
+    return "";
+}
+
 amount_t blockchain::get_balance(const pubkey_t &addr)
 {
     amount_t balance = 0;

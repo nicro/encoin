@@ -37,6 +37,7 @@ public:
     void remove_all();
     std::vector<block> get_all();
     block last_block();
+    std::string to_string() const;
 
     tx_list pool() const;
     void clear_pool();

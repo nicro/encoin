@@ -1,40 +1,101 @@
 #include <net/message.h>
+#include <net/node.h>
 
 namespace encoin {
 
-std::string json_wrapper::type()
+json new_tx_message::make_response(node *node, nlohmann::json request)
 {
-    return contains("type") ? at("type").template get<std::string>() : "";
+    auto tx = transaction::from_string(get_payload(request));
+    node->chain().push(tx);
+    return {};
+}
+json new_tx_message::make_request(node *node, const transaction &tx)
+{
+    json j;
+    set_type(j, type());
+    set_payload(j, tx.to_string());
+    return j;
 }
 
-void json_wrapper::set_type(const std::string &type)
+json new_block_message::make_response(node *node, nlohmann::json request)
 {
-    (*this)["type"] = type;
+    auto bl = block::from_string(get_payload(request));
+    node->chain().push(bl);
+    return {};
+}
+json new_block_message::make_request(node *node, const block &bl)
+{
+    json j;
+    set_type(j, type());
+    set_payload(j, bl.to_string());
+    return j;
 }
 
-json json_wrapper::payload()
+json get_peers_message::make_response(node *node, nlohmann::json request)
 {
-    return contains("payload") ? at("payload") : json{};
+    json j;
+    set_type(j, type());
+
+    std::vector<std::string> peers;
+    for (auto &peer : node->peers())
+    {
+        peers.push_back(peer.to_string());
+    }
+    set_payload(j, peers);
+    return j;
+}
+json get_peers_message::make_request(node *node, const std::monostate&)
+{
+    json j;
+    set_type(j, type());
+    return j;
 }
 
-void json_wrapper::set_payload(const nlohmann::json &payload)
+json get_pool_message::make_response(node *node, nlohmann::json request)
 {
-    (*this)["payload"] = payload;
+    json j;
+    set_type(j, type());
+    std::vector<std::string> txs;
+    for (auto &tx : node->chain().pool())
+    {
+        txs.push_back(tx.to_string());
+    }
+    set_payload(j, txs);
+    return j;
+}
+json get_pool_message::make_request(node *node, const std::monostate&)
+{
+    json j;
+    set_type(j, type());
+    return j;
 }
 
-std::string json_wrapper::status()
+json get_latest_block_message::make_response(node *node, nlohmann::json request)
 {
-    return contains("status") ? at("status").template get<std::string>() : "";
+    json j;
+    set_type(j, type());
+    set_payload(j, node->chain().last_block().to_string());
+    return j;
+}
+json get_latest_block_message::make_request(node *node, const std::monostate &)
+{
+    json j;
+    set_type(j, type());
+    return j;
 }
 
-void json_wrapper::set_status(const std::string &status)
+json get_chain_message::make_response(node *node, nlohmann::json request)
 {
-    (*this)["status"] = status;
+    json j;
+    set_type(j, type());
+    set_payload(j, node->chain().to_string());
+    return j;
 }
-
-json json_wrapper::as_plain()
+json get_chain_message::make_request(node *node, const std::monostate &)
 {
-    return *reinterpret_cast<json*>(this);
+    json j;
+    set_type(j, type());
+    return j;
 }
 
 }
