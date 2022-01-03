@@ -5,97 +5,56 @@ namespace encoin {
 
 json new_tx_message::make_response(node *node, nlohmann::json request)
 {
-    auto tx = transaction::from_string(get_payload(request));
+    auto tx = transaction::from_string(request["payload"]);
+    std::cout << "new transaction received" << std::endl;
     node->chain().push(tx);
     return {};
 }
 json new_tx_message::make_request(node *node, const transaction &tx)
 {
-    json j;
-    set_type(j, type());
-    set_payload(j, tx.to_string());
-    return j;
+    return tx.to_string();
 }
 
 json new_block_message::make_response(node *node, nlohmann::json request)
 {
-    auto bl = block::from_string(get_payload(request));
+    auto bl = block::from_string(request["payload"]);
+    std::cout << "new block received" << std::endl;
     node->chain().push(bl);
     return {};
 }
 json new_block_message::make_request(node *node, const block &bl)
 {
-    json j;
-    set_type(j, type());
-    set_payload(j, bl.to_string());
-    return j;
+    return bl.to_string();
 }
 
 json get_peers_message::make_response(node *node, nlohmann::json request)
 {
-    json j;
-    set_type(j, type());
-
     std::vector<std::string> peers;
     for (auto &peer : node->peers())
     {
         peers.push_back(peer.to_string());
     }
-    set_payload(j, peers);
-    return j;
-}
-json get_peers_message::make_request(node *node, const std::monostate&)
-{
-    json j;
-    set_type(j, type());
-    return j;
+    return peers;
 }
 
 json get_pool_message::make_response(node *node, nlohmann::json request)
 {
-    json j;
-    set_type(j, type());
     std::vector<std::string> txs;
     for (auto &tx : node->chain().pool())
     {
         txs.push_back(tx.to_string());
     }
-    set_payload(j, txs);
-    return j;
-}
-json get_pool_message::make_request(node *node, const std::monostate&)
-{
-    json j;
-    set_type(j, type());
-    return j;
+    return txs;
 }
 
 json get_latest_block_message::make_response(node *node, nlohmann::json request)
 {
-    json j;
-    set_type(j, type());
-    set_payload(j, node->chain().last_block().to_string());
-    return j;
-}
-json get_latest_block_message::make_request(node *node, const std::monostate &)
-{
-    json j;
-    set_type(j, type());
-    return j;
+    return node->chain().last_block().to_string();
 }
 
 json get_chain_message::make_response(node *node, nlohmann::json request)
 {
-    json j;
-    set_type(j, type());
-    set_payload(j, node->chain().to_string());
-    return j;
-}
-json get_chain_message::make_request(node *node, const std::monostate &)
-{
-    json j;
-    set_type(j, type());
-    return j;
+    return node->chain().to_string();
 }
 
 }

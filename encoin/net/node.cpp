@@ -6,8 +6,8 @@
 
 namespace encoin {
 
-node::node(blockchain &bc, unsigned short port)
-    : _chain(bc), _port(port)
+node::node(blockchain &bc, std::string addr, unsigned short port)
+    : _chain(bc), _address(addr), _port(port)
 {
     add_peers_from_env();
     for (auto &peer : _peers)
@@ -71,14 +71,18 @@ std::string node::on_message(const std::string &msg)
     {
         return "invalid json [" + msg + "]";
     }
-
-    std::string type = message::parse_type(j);
+    if (!has_peer(j["address"], j["port"]))
+    {
+        add_peer(j["address"], j["port"]);
+    }
 
     if (auto *msgptr = message::match<new_tx_message, new_block_message, get_peers_message,
-            get_pool_message, get_latest_block_message, get_chain_message>(type))
+            get_pool_message, get_latest_block_message, get_chain_message>(j["type"]))
     {
-        auto resp = msgptr->make_response(this, j);
-        return delete msgptr, resp.dump();
+        json jstr;
+        jstr["type"] = msgptr->type();
+        jstr["payload"] = msgptr->make_response(this, j);
+        return delete msgptr, jstr.dump();
     }
     return "undefined type";
 }
@@ -119,6 +123,7 @@ void node::server_loop()
             tcp::socket socket{_ctx};
             std::cout << "waiting for requests..." << std::endl;
             acceptor.accept(socket);
+
             std::thread(&node::message_handler, this, std::move(socket)).detach();
         }
     }

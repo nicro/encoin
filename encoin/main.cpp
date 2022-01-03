@@ -27,28 +27,10 @@ T getopt (const std::string &opt)
     exit(-1);
 }
 
-//#include <net/message.h>
+#include <net/message.h>
 
 int main(int argc, char **argv)
 {
-//    blockchain bc;
-//    node client{bc, 5001};
-//    node srv{bc, 5002};
-
-//    srv.run_server();
-//    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-//    client.add_peer("127.0.0.1", 5002);
-//    for (auto &peer : client.peers())
-//    {
-//        std::cout << "peer on port: " << peer.port() << std::endl;
-//        peer.connect();
-//    }
-
-//    std::cout << client.dispatch<get_pool_message>() << std::endl;
-//    srv.wait_server();
-//    return 0;
-
     cxxopts::Options parser("encoin", "A simple cryptocurrency");
     parser.add_options()
         ("c,opt",    "Command",     cxxopts::value<std::string>())
@@ -83,6 +65,11 @@ int main(int argc, char **argv)
             std::cout << "is main net: " << settings.main_net() << std::endl;
             exit(0);
         }
+        else if (value == "port")
+        {
+            std::cout << "port: " << settings.port() << std::endl;
+            exit(0);
+        }
         else
         {
             std::cout << "error: setting not found" << std::endl;
@@ -111,6 +98,12 @@ int main(int argc, char **argv)
                 std::cout << "mode set to " << (sub2 == "true" ? "main net" : "dev net") << std::endl;
                 return 0;
             }
+            else if (sub1 == "port")
+            {
+                settings.set_port(std::stoi(sub2));
+                std::cout << "port set to " << sub2 << std::endl;
+                return 0;
+            }
             else
             {
                 std::cout << "error: setting not found" << std::endl;
@@ -122,8 +115,15 @@ int main(int argc, char **argv)
     }
 
     blockchain chain;
-    node node{chain};
+    node node{chain, "127.0.0.1", settings().port()};
 
+    if (opt == "run-node")
+    {
+        node.run_server();
+        std::cout << "listening on port " << node._port << std::endl;
+        node.wait_server();
+        return 0;
+    }
     if (opt == "print-blockchain") // full node
     {
         chain.print();
@@ -153,7 +153,9 @@ int main(int argc, char **argv)
         std::string dest = getopt<std::string>("to");
         amount_t amount = getopt<amount_t>("amount");
 
-        chain.push(wallet.send(dest, amount));
+        auto tx = wallet.send(dest, amount);
+        chain.push(tx);
+        node.dispatch<new_tx_message>(tx);
         std::cout << amount << " sent to " << dest << std::endl;
         return 0;
     }

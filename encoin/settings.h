@@ -37,6 +37,7 @@ public:
 public:
     SETTING(bool, main_net, false);
     SETTING(std::string, reward_address, "");
+    SETTING(unsigned short, port, 5001);
 
     void load();
     void save();

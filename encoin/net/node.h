@@ -15,7 +15,7 @@ using nlohmann::json;
 class node {
 public:
 
-    node(blockchain&, unsigned short port = 80);
+    node(blockchain&, std::string addr = "127.0.0.1", unsigned short port = 1234);
     ~node();
 
     void message_handler(tcp::socket socket);
@@ -36,22 +36,32 @@ public:
     void run_server();
     void wait_server();
 
-
     void add_peers_from_env();
+
+    template <class msg_type>
+    inline std::string prepare_msg(typename msg_type::arg_type data = {})
+    {
+        json j;
+        auto msg = msg_type();
+        j["type"] = msg.type();
+        j["payload"] = msg.make_request(this, data);
+        j["address"] = _address;
+        j["port"] = _port;
+        return j.dump();
+    }
 
     template <class msg_type>
     inline std::string dispatch(typename msg_type::arg_type data = {})
     {
-        auto req = msg_type().make_request(this, data).dump();
         if (!_peers.size()) return "";
-        return _peers.front().send(req);
+        return _peers.front().send(prepare_msg<msg_type>(data));
     }
 
     template <class msg_type>
     inline void broadcast(typename msg_type::arg_type data = {})
     {
-        auto req = msg_type().make_request(this, data).dump();
-        for (auto &peer : _peers) peer.send(req);
+        auto request = prepare_msg<msg_type>(data);
+        for (auto &peer : _peers) peer.send(request);
     }
 
 public:
@@ -59,6 +69,7 @@ public:
     std::vector<peer> _peers;
     net::io_context _ctx;
     std::thread _srv_thread;
+    std::string _address;
     unsigned short _port;
 };
 

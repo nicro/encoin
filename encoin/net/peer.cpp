@@ -1,5 +1,6 @@
 #include <net/peer.h>
 #include <iostream>
+#include <net/node.h>
 
 namespace encoin {
 
@@ -12,7 +13,6 @@ void peer::connect()
         auto ep = net::connect(_socket.next_layer(), results);
         _host += ':' + std::to_string(ep.port());
         _socket.handshake(_host, "/");
-        on_connect();
     }
     catch (std::exception const &e)
     {
@@ -20,18 +20,18 @@ void peer::connect()
     }
 }
 
-void peer::on_connect()
+std::string peer::send(const std::string &text)
 {
-    //this->send("Hello :)");
+    return peer::send(_socket, text);
 }
 
-std::string peer::send(const std::string &text)
+std::string peer::send(wsstream_t &socket, const std::string &text)
 {
     try
     {
         beast::flat_buffer buffer;
-        _socket.write(net::buffer(text));
-        _socket.read(buffer);
+        socket.write(net::buffer(text));
+        socket.read(buffer);
         return beast::buffers_to_string(buffer.data());
         //std::cout << "client response: " << beast::make_printable(buffer.data()) << std::endl;
     }
