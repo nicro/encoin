@@ -7,27 +7,9 @@
 #include <crypto/base16.h>
 #include <settings.h>
 #include <net/node.h>
-//#include <net/message.h>
-
-//#include <thread>
-//#include <chrono>
+#include <net/message.h>
 
 using namespace encoin;
-
-inline cxxopts::ParseResult cmdopts;
-
-template <class T >
-T getopt (const std::string &opt)
-{
-    if (cmdopts.count(opt))
-    {
-        return cmdopts[opt].as<T>();
-    }
-    std::cerr << opt << " was not provided" << std::endl;
-    exit(-1);
-}
-
-#include <net/message.h>
 
 int main(int argc, char **argv)
 {
@@ -40,21 +22,25 @@ int main(int argc, char **argv)
         ("h,help",   "Print usage");
 
     parser.parse_positional({"opt", "value"});
-    cmdopts = parser.parse(argc, argv);
+    cxxopts::ParseResult cmdopts = parser.parse(argc, argv);
 
-    if (cmdopts.count("help"))
+    if (cmdopts.count("help") || !cmdopts.count("opt"))
     {
         std::cout << parser.help() << std::endl;
         exit(0);
     }
 
-
-    std::string opt  = getopt<std::string>("opt");
+    std::string opt  = cmdopts["opt"].as<std::string>();
 
     if (opt == "get") // local
     {
         settings settings;
-        std::string value = getopt<std::string>("value");
+        if (!cmdopts.count("value"))
+        {
+            std::cout << "Please provide the name of a setting" << std::endl;
+            return -1;
+        }
+        std::string value = cmdopts["value"].as<std::string>();
         if (value == "reward_address")
         {
             std::cout << "reward address: " << settings.reward_address() << std::endl;
@@ -79,7 +65,12 @@ int main(int argc, char **argv)
     if (opt == "set") // local
     {
         settings settings;
-        std::string value = getopt<std::string>("value");
+        if (!cmdopts.count("value"))
+        {
+            std::cout << "Please provide the name=value for a setting" << std::endl;
+            return -1;
+        }
+        std::string value = cmdopts["value"].as<std::string>();
 
         if (auto del = value.find('='); del != std::string::npos)
         {
@@ -116,6 +107,7 @@ int main(int argc, char **argv)
 
     blockchain chain;
     node node{chain, "127.0.0.1", settings().port()};
+    //std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     if (opt == "run-node")
     {
@@ -150,12 +142,18 @@ int main(int argc, char **argv)
     if (opt == "wallet-send") // full node
     {
         wallet wallet;
-        std::string dest = getopt<std::string>("to");
-        amount_t amount = getopt<amount_t>("amount");
+        if (!cmdopts.count("to") || !cmdopts.count("amount"))
+        {
+            std::cout << "Either amount or target address is missing" << std::endl;
+            return -1;
+        }
+        std::string dest = cmdopts["to"].as<std::string>();
+        amount_t amount = cmdopts["amount"].as<amount_t>();
 
         auto tx = wallet.send(dest, amount);
         chain.push(tx);
-        node.dispatch<new_tx_message>(tx);
+        node.broadcast<new_tx_message>(tx);
+
         std::cout << amount << " sent to " << dest << std::endl;
         return 0;
     }

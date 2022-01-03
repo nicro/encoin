@@ -39,29 +39,36 @@ public:
     void add_peers_from_env();
 
     template <class msg_type>
-    inline std::string prepare_msg(typename msg_type::arg_type data = {})
+    inline typename msg_type::rtype dispatch()
     {
-        json j;
         auto msg = msg_type();
+
+        json j;
         j["type"] = msg.type();
-        j["payload"] = msg.make_request(this, data);
         j["address"] = _address;
         j["port"] = _port;
-        return j.dump();
+        j["is_broadcast"] = false;
+
+        std::string request = j.dump();
+        return _peers.front().send(request);
     }
 
     template <class msg_type>
-    inline std::string dispatch(typename msg_type::arg_type data = {})
+    inline void broadcast(typename msg_type::ptype data)
     {
-        if (!_peers.size()) return "";
-        return _peers.front().send(prepare_msg<msg_type>(data));
-    }
+        auto msg = msg_type();
 
-    template <class msg_type>
-    inline void broadcast(typename msg_type::arg_type data = {})
-    {
-        auto request = prepare_msg<msg_type>(data);
-        for (auto &peer : _peers) peer.send(request);
+        json j;
+        j["type"] = msg.type();
+        j["payload"] = msg.build_request(data);
+        j["is_broadcast"] = true;
+
+        std::string request = j.dump();
+        for (auto &peer : _peers)
+        {
+            std::cout << "broadcasting to peer on port " << peer.port() << std::endl;
+            peer.send(request);
+        }
     }
 
 public:

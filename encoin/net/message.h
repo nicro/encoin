@@ -7,6 +7,8 @@
 #include <variant>
 #include <transaction.h>
 #include <block.h>
+#include <net/peer.h>
+#include <blockchain.h>
 
 namespace encoin {
 
@@ -19,10 +21,9 @@ public:
     message() = default;
     virtual ~message() {};
     virtual std::string type() = 0;
-    virtual json make_response(node*, json) = 0;
+    virtual json handle_response(node*, json j) = 0;
 
     template <class arg>
-
     static message *match(const std::string &name)
     {
         if (arg *obj = new arg; auto ptr = reinterpret_cast<message*>(obj))
@@ -43,49 +44,55 @@ public:
     }
 };
 
-template <class rtype = json, class atype = std::monostate>
-class callable_message: public message {
+template <class pt>
+class broadcast_message: public message {
 public:
-    using arg_type = atype;
-    virtual rtype make_request(node*, const atype&) { return {}; }
+    using ptype = pt;
+    virtual std::string build_request(const pt &payload) = 0;
 };
 
-
-class new_tx_message: public callable_message<json, transaction> {
+class new_tx_message: public broadcast_message<transaction> {
 public:
-    json make_response(node *node, json request) override;
-    json make_request(node *node, const transaction &tx) override;
+    json handle_response(node*, json request) override;
+    std::string build_request(const transaction &tx) override;
     std::string type() override { return "new_tx"; }
 };
-
-class new_block_message: public callable_message<json, block> {
+class new_block_message: public broadcast_message<block> {
 public:
-    json make_response(node *node, json request) override;
-    json make_request(node *node, const block &bl) override;
+    json handle_response(node*, json request) override;
+    std::string build_request(const block &bl) override;
     std::string type() override { return "new_block"; }
 };
 
-class get_peers_message: public callable_message<> {
+template <class rt>
+class query_message: public message {
 public:
-    json make_response(node *node, json request) override;
+    using rtype = rt;
+    virtual rt parse_result(json j) = 0;
+};
+
+class get_peers_message: public query_message<peer_list> {
+public:
+    json handle_response(node *node, json request) override;
+    virtual peer_list parse_result(json j) override;
     std::string type() override { return "get_peers"; }
 };
-
-class get_pool_message: public callable_message<> {
+class get_pool_message: public query_message<tx_list> {
 public:
-    json make_response(node *node, json request) override;
+    json handle_response(node *node, json request) override;
+    virtual tx_list parse_result(json j) override;
     std::string type() override { return "get_pool"; }
 };
-
-class get_latest_block_message: public callable_message<> {
+class get_latest_block_message: public query_message<block> {
 public:
-    json make_response(node *node, json request) override;
+    json handle_response(node *node, json request) override;
+    virtual block parse_result(json j) override;
     std::string type() override { return "get_latest_block"; }
 };
-
-class get_chain_message: public callable_message<> {
+class get_chain_message: public query_message<blockchain> {
 public:
-    json make_response(node *node, json request) override;
+    json handle_response(node *node, json request) override;
+    virtual blockchain parse_result(json j) override;
     std::string type() override { return "get_chain"; }
 };
 

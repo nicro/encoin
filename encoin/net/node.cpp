@@ -71,20 +71,28 @@ std::string node::on_message(const std::string &msg)
     {
         return "invalid json [" + msg + "]";
     }
-    if (!has_peer(j["address"], j["port"]))
+
+    if (j.contains("address") && j.contains("port"))
     {
-        add_peer(j["address"], j["port"]);
+        std::string address = j["address"];
+        unsigned short port = j["port"];
+        add_peer(address, port);
     }
 
-    if (auto *msgptr = message::match<new_tx_message, new_block_message, get_peers_message,
-            get_pool_message, get_latest_block_message, get_chain_message>(j["type"]))
+    if (!j.contains("type"))
+        return "error: untyped message";
+
+    if (message *msgptr = message::match<new_tx_message, new_block_message,
+            get_peers_message, get_pool_message,
+            get_latest_block_message, get_chain_message>(j["type"]))
     {
-        json jstr;
-        jstr["type"] = msgptr->type();
-        jstr["payload"] = msgptr->make_response(this, j);
-        return delete msgptr, jstr.dump();
+        //std::cout << "message found !!!" << std::endl;
+
+        json data = msgptr->handle_response(this, j);
+        delete msgptr;
+        return data.is_null() ? "" : json{{"type", j["type"]}, {"payload", data}}.dump();
     }
-    return "undefined type";
+    return "error: unknown message type";
 }
 
 void node::message_handler(tcp::socket socket)
@@ -101,10 +109,8 @@ void node::message_handler(tcp::socket socket)
             ws.text(ws.got_text()); // set text mode if needed
 
             std::string reqstr = beast::buffers_to_string(buffer.data());
-            if (std::string rsp = on_message(reqstr); !rsp.empty())
-            {
-                ws.write(net::buffer(rsp));
-            }
+            std::string rsp = on_message(reqstr);
+            ws.write(net::buffer(rsp));
         }
         on_close();
     }

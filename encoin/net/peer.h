@@ -16,6 +16,9 @@ using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 namespace encoin {
 
 class node;
+class peer;
+
+typedef std::vector<peer> peer_list;
 
 class peer {
 public:
