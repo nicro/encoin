@@ -10,10 +10,10 @@ using nlohmann::json;
 
 class settings {
 public:
-    settings() { load(); }
-    ~settings() { save(); }
+    settings();
+    ~settings();
 
-    static constexpr auto SETTINGS_NAME = "settings.json";
+    static constexpr auto SETTINGS_FILENAME = "settings.json";
 
     template <class _type>
     inline void set(const std::string &key, const _type &value)
@@ -39,8 +39,8 @@ public:
     SETTING(std::string, reward_address, "");
     SETTING(unsigned short, port, 5001);
 
-    void load();
-    void save();
+    void load(const std::string &name);
+    void save(const std::string &name);
 
 protected:
     json _json;

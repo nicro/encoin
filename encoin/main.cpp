@@ -1,32 +1,46 @@
+#include <boost/program_options.hpp>
 #include <iostream>
-#include <wallet.h>
-#include <blockchain.h>
-#include <block.h>
-#include <miner.h>
-#include <cxxopts.hpp>
-#include <crypto/base16.h>
-#include <settings.h>
+
 #include <net/node.h>
 #include <net/message.h>
+#include <settings.h>
+#include <blockchain.h>
+#include <wallet.h>
+#include <block.h>
+#include <miner.h>
 
 using namespace encoin;
+namespace po = boost::program_options;
 
 int main(int argc, char **argv)
 {
-    cxxopts::Options parser("encoin", "A simple cryptocurrency");
-    parser.add_options()
-        ("c,opt",    "Command",     cxxopts::value<std::string>())
-        ("v,value",  "Value",       cxxopts::value<std::string>())
-        ("t,to",     "Destination", cxxopts::value<std::string>())
-        ("a,amount", "Amount",      cxxopts::value<amount_t>())
-        ("h,help",   "Print usage");
+    po::options_description desc("encoin - a simple cryptocurrency");
+    desc.add_options()
+        ("opt",    po::value<std::string>(), "command")
+        ("value",  po::value<std::string>(), "value")
+        ("to",     po::value<std::string>(), "destination")
+        ("amount", po::value<amount_t>(),    "amount")
+        ("help",                             "print usage");
 
-    parser.parse_positional({"opt", "value"});
-    cxxopts::ParseResult cmdopts = parser.parse(argc, argv);
+    po::positional_options_description pos_desc;
+    pos_desc.add("opt", 1);
+    pos_desc.add("value", 1);
+
+    po::variables_map cmdopts;
+    try
+    {
+        po::store(po::command_line_parser(argc, argv).options(desc).positional(pos_desc).run(), cmdopts);
+        boost::program_options::notify(cmdopts);
+    }
+    catch (boost::program_options::error& e)
+    {
+        std::cout << "error: " << e.what() << "\n";
+        return -1;
+    }
 
     if (cmdopts.count("help") || !cmdopts.count("opt"))
     {
-        std::cout << parser.help() << std::endl;
+        std::cout << desc << std::endl;
         exit(0);
     }
 

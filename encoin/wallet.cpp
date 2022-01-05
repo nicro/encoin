@@ -1,15 +1,27 @@
 #include "wallet.h"
 
+#include <nlohmann/json.hpp>
 #include <crypto/sha256.h>
 #include <crypto/ecdsa.h>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 namespace encoin {
 
+using nlohmann::json;
+
 wallet::wallet()
-    : _storage(create_wallet_storage())
 {
-    _storage.sync_schema();
+    if (std::filesystem::exists(WALLET_FILENAME))
+    {
+        load(WALLET_FILENAME);
+    }
+}
+
+wallet::~wallet()
+{
+    save(WALLET_FILENAME);
 }
 
 pubkey_t wallet::create_new_address()
@@ -18,37 +30,76 @@ pubkey_t wallet::create_new_address()
     auto pub_key = point.public_key_hex();
     auto priv_key = point.private_key_hex();
     auto kp = keypair{
-        std::string(pub_key.begin(), pub_key.end()),
-        std::string(priv_key.begin(), priv_key.end())
+        pubkey_t(pub_key.begin(), pub_key.end()),
+        privkey_t(priv_key.begin(), priv_key.end())
     };
 
-    _storage.replace(kp);
-    return std::string(pub_key.begin(), pub_key.end());
+    _keypairs.push_back(kp);
+    return pubkey_t(pub_key.begin(), pub_key.end());
 }
 
 std::list<pubkey_t> wallet::addresses()
 {
     std::list<pubkey_t> list;
-    for (auto &it : _storage.iterate<keypair>())
+    for (const auto &it : _keypairs)
+    {
         list.push_back(it.public_key);
+    }
     return list;
+}
+
+void wallet::save(const std::string &name)
+{
+    std::ofstream out(WALLET_FILENAME);
+
+    std::vector<json> list;
+    for (auto &it : _keypairs)
+    {
+        json pp = {
+            { "private", it.private_key },
+            { "public", it.public_key }
+        };
+        list.push_back(pp);
+    }
+    out << json(list).dump();
+    out.close();
+}
+
+void wallet::load(const std::string &name)
+{
+    std::ifstream t(WALLET_FILENAME);
+    std::stringstream buffer; buffer << t.rdbuf();
+    std::string string = buffer.str();
+
+    try
+    {
+        json j = json::parse(string);
+        for (auto &it : j)
+        {
+            if (it.contains("private") && it.contains("public"))
+            {
+                _keypairs.push_back(keypair{it["private"], it["public"]});
+            }
+        }
+    }
+    catch (...) {}
 }
 
 pubkey_t wallet::get_active_address()
 {
-    auto all = addresses();
-    return all.empty() ? create_new_address() : all.front();
-}
-
-void wallet::remove_all()
-{
-    _storage.remove_all<keypair>();
+    return _keypairs.empty() ? create_new_address() : _keypairs.front().public_key;
 }
 
 privkey_t wallet::get_private_key(const std::string &pubkey)
 {
-    auto kp = _storage.get_pointer<keypair>(pubkey);
-    return kp ? kp->private_key : "";
+    for (const auto &it : _keypairs)
+    {
+        if (it.public_key == pubkey)
+        {
+            return it.private_key;
+        }
+    }
+    return {};
 }
 
 transaction wallet::send(const std::string &to, const amount_t &amount)

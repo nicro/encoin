@@ -5,17 +5,30 @@
 
 namespace encoin {
 
-void settings::load()
+settings::settings()
 {
-    std::ifstream t(SETTINGS_NAME);
+    if (std::filesystem::exists(SETTINGS_FILENAME))
+    {
+        load(SETTINGS_FILENAME);
+    }
+}
+
+settings::~settings()
+{
+    save(SETTINGS_FILENAME);
+}
+
+void settings::load(const std::string &name)
+{
+    std::ifstream t(name);
     std::stringstream buffer; buffer << t.rdbuf();
     std::string string = buffer.str();
     _json = string.empty() ? json{} : json::parse(string);
 }
 
-void settings::save()
+void settings::save(const std::string &name)
 {
-    std::ofstream out(SETTINGS_NAME);
+    std::ofstream out(name);
     out << _json.dump();
     out.close();
 }
