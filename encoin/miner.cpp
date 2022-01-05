@@ -1,14 +1,14 @@
 #include "miner.h"
 
-#include <crypto/sha256.h>
 #include <iostream>
 #include <termcolor/termcolor.hpp>
+#include <crypto/sha256.h>
 #include <settings.h>
 
 
 namespace encoin {
 
-miner::miner(const blockchain &chain, const pubkey_t &reward_address)
+miner::miner(blockchain &chain, const pubkey_t &reward_address)
     : _chain(chain), _reward_address(reward_address)
 {
     settings settings;

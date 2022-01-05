@@ -1,6 +1,5 @@
 #include <boost/program_options.hpp>
 #include <iostream>
-
 #include <net/node.h>
 #include <net/message.h>
 #include <settings.h>

@@ -3,12 +3,8 @@
 
 #include <string>
 #include <vector>
-#include <ostream>
-#include <sstream>
 #include <stdexcept>
 #include <crypto/ecdsa.h>
-#include <iostream>
-
 
 namespace encoin {
 

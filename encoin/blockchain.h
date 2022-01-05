@@ -1,8 +1,8 @@
 ﻿#ifndef BLOCKCHAIN_H
 #define BLOCKCHAIN_H
 
-#include <transaction.h>
 #include <block.h>
+#include <transaction.h>
 #include <wallet.h>
 
 namespace encoin {

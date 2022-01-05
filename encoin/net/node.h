@@ -1,12 +1,11 @@
 #ifndef NODE_H
 #define NODE_H
 
-#include <net/peer.h>
 #include <thread>
 #include <vector>
 #include <nlohmann/json.hpp>
+#include <net/peer.h>
 #include <blockchain.h>
-#include <variant>
 
 namespace encoin {
 
@@ -30,7 +29,7 @@ public:
     peer &get_peer(const std::string &host);
     bool has_peer(const std::string &host);
 
-    std::vector<peer> &peers() { return _peers; }
+    peer_list &peers() { return _peers; }
     blockchain &chain() { return _chain; }
 
     void run_server();
@@ -78,7 +77,7 @@ public:
 
 public:
     blockchain &_chain;
-    std::vector<peer> _peers;
+    peer_list _peers;
     net::io_context _ctx;
     std::thread _srv_thread;
     std::string _address;

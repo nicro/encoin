@@ -1,8 +1,9 @@
 #include "blockchain.h"
+
 #include <iostream>
 #include <fstream>
-#include <nlohmann/json.hpp>
 #include <filesystem>
+#include <nlohmann/json.hpp>
 
 namespace encoin {
 

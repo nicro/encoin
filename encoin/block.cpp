@@ -1,4 +1,5 @@
 #include "block.h"
+
 #include <nlohmann/json.hpp>
 
 namespace encoin {

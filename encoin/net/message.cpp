@@ -1,4 +1,5 @@
-#include <net/message.h>
+#include "message.h"
+
 #include <net/node.h>
 
 namespace encoin {

@@ -1,11 +1,11 @@
 #include "wallet.h"
 
-#include <nlohmann/json.hpp>
-#include <crypto/sha256.h>
-#include <crypto/ecdsa.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <crypto/sha256.h>
+#include <crypto/ecdsa.h>
+#include <nlohmann/json.hpp>
 
 namespace encoin {
 

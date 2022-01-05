@@ -1,8 +1,7 @@
-#include <net/message.h>
-#include <net/node.h>
+#include "node.h"
+
 #include <iostream>
-#include <cstdlib>
-#include <sstream>
+#include <net/message.h>
 
 namespace encoin {
 

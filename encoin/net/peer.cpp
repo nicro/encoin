@@ -1,4 +1,5 @@
-#include <net/peer.h>
+#include "peer.h"
+
 #include <iostream>
 #include <net/node.h>
 

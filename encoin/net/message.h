@@ -3,12 +3,12 @@
 
 #include <string>
 #include <iostream>
-#include <nlohmann/json.hpp>
 #include <variant>
-#include <transaction.h>
-#include <block.h>
+#include <nlohmann/json.hpp>
 #include <net/peer.h>
 #include <blockchain.h>
+#include <transaction.h>
+#include <block.h>
 
 namespace encoin {
 
