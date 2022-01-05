@@ -105,10 +105,38 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    blockchain chain;
+    blockchain chain{true};
     node node{chain, "127.0.0.1", settings().port()};
-    //std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
+    // todo: if not empty ask node for longer chain
+
+    if (chain.is_empty())
+    {
+        block_list blocks = node.dispatch<get_chain_message>();
+        std::cout << blocks.size() << " new blocks fetched" << std::endl;
+        chain.set_blocks(blocks);
+    }
+
+    {
+        tx_list fetched_pool = node.dispatch<get_pool_message>();
+        int tx_counter = 0;
+        for (auto &tx : fetched_pool)
+        {
+            if (!chain.contains(tx))
+            {
+                chain.push(tx), tx_counter++;
+            }
+        }
+        std::cout << tx_counter << " new transactions fetched" << std::endl;
+    }
+
+    if (opt == "create-random")
+    {
+        chain = blockchain::random_filled();
+        std::cout << "chain filled with random values" << std::endl;
+        return 0;
+    }
     if (opt == "run-node")
     {
         node.run_server();

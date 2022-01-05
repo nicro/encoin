@@ -71,12 +71,6 @@ public:
     virtual rt parse_result(json j) = 0;
 };
 
-class get_peers_message: public query_message<peer_list> {
-public:
-    json handle_response(node *node, json request) override;
-    virtual peer_list parse_result(json j) override;
-    std::string type() override { return "get_peers"; }
-};
 class get_pool_message: public query_message<tx_list> {
 public:
     json handle_response(node *node, json request) override;
@@ -89,10 +83,10 @@ public:
     virtual block parse_result(json j) override;
     std::string type() override { return "get_latest_block"; }
 };
-class get_chain_message: public query_message<blockchain> {
+class get_chain_message: public query_message<block_list> {
 public:
     json handle_response(node *node, json request) override;
-    virtual blockchain parse_result(json j) override;
+    virtual block_list parse_result(json j) override;
     std::string type() override { return "get_chain"; }
 };
 

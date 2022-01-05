@@ -32,7 +32,7 @@ std::string peer::send(wsstream_t &socket, const std::string &text)
         beast::flat_buffer buffer;
         socket.write(net::buffer(text));
         socket.read(buffer);
-        std::cout << "client response: " << beast::make_printable(buffer.data()) << std::endl;
+        //std::cout << "client response: " << beast::make_printable(buffer.data()) << std::endl;
         return beast::buffers_to_string(buffer.data());
     }
     catch (const beast::system_error &error)

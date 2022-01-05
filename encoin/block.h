@@ -9,14 +9,14 @@
 
 namespace encoin {
 
+class block;
+typedef std::vector<block> block_list;
+
 class block
 {
 public:
     block();
     block(std::initializer_list<transaction> txs);
-
-    template <typename... Args>
-    friend auto create_chain_storage();
 
     void update_time_now();
     void add(const transaction &tx);
@@ -40,19 +40,16 @@ public:
     time_t timestamp() const { return _timestamp; }
     void set_timestamp(const time_t &time) { _timestamp = time; }
 
-    std::vector<transaction> transactions() const { return _transactions; }
+    tx_list transactions() const { return _transactions; }
+    void set_transactions(const tx_list &txs) { _transactions = txs; }
 
-    void load_tx_data();
-    void save_tx_data();
-
-protected:
+public:
     unsigned _height = 0;
     unsigned _nonce = 0;
     time_t _timestamp;
     std::string _hash;
     std::string _prev_hash;
-    std::string _txdata;
-    std::vector<transaction> _transactions;
+    tx_list _transactions;
 };
 
 }

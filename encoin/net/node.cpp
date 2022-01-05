@@ -83,11 +83,8 @@ std::string node::on_message(const std::string &msg)
         return "error: untyped message";
 
     if (message *msgptr = message::match<new_tx_message, new_block_message,
-            get_peers_message, get_pool_message,
-            get_latest_block_message, get_chain_message>(j["type"]))
+            get_pool_message, get_latest_block_message, get_chain_message>(j["type"]))
     {
-        //std::cout << "message found !!!" << std::endl;
-
         json data = msgptr->handle_response(this, j);
         delete msgptr;
         return data.is_null() ? "" : json{{"type", j["type"]}, {"payload", data}}.dump();

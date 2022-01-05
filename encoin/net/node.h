@@ -49,8 +49,13 @@ public:
         j["port"] = _port;
         j["is_broadcast"] = false;
 
+        if (_peers.size() == 0)
+            return {};
+
         std::string request = j.dump();
-        return _peers.front().send(request);
+        std::string response = _peers.front().send(request);
+        json result = json::parse(response);
+        return msg.parse_result(result["payload"]);
     }
 
     template <class msg_type>
@@ -66,7 +71,7 @@ public:
         std::string request = j.dump();
         for (auto &peer : _peers)
         {
-            std::cout << "broadcasting to peer on port " << peer.port() << std::endl;
+            //std::cout << "broadcasting to peer on port " << peer.port() << std::endl;
             peer.send(request);
         }
     }

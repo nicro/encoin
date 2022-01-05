@@ -32,12 +32,14 @@ std::string block::to_string() const
     j["txcount"] = _transactions.size();
     j["prevhash"] = _prev_hash;
 
-    json txs = json::array();
+    std::vector<std::string> list;
     for (auto &tx : _transactions)
-        txs.push_back(json::parse(tx.to_string()));
+    {
+        list.push_back(tx.to_string());
+    }
+    j["txs"] = list;
 
-    j["txs"] = txs;
-    return j.dump(2);
+    return j.dump();
 }
 
 block block::from_string(const std::string &string)
@@ -47,7 +49,7 @@ block block::from_string(const std::string &string)
     bl._nonce = j["nonce"];
     bl._height = j["height"];
     bl._timestamp = j["timestamp"];
-    for (auto &item : j["txs"].array())
+    for (auto &item : j["txs"])
     {
         bl._transactions.push_back(transaction::from_string(item));
     }
@@ -80,32 +82,8 @@ block block::genesis()
     tx._inputs.push_back(input_t{1000, "FFFFF"});
     tx._outputs.push_back(output_t{1000, pk});
     genesis.add(tx);
-    genesis.save_tx_data();
     genesis._hash = genesis.calc_hash();
     return genesis;
-}
-
-void block::save_tx_data()
-{
-    std::vector<json> txs;
-    for (const auto& tx : _transactions)
-        txs.push_back(json::parse(tx.to_string()));
-
-    std::string data = json(txs).dump();
-
-    auto encoded = base16_encode(std::vector<unsigned char>{data.begin(), data.end()});
-    _txdata = std::string{encoded.begin(), encoded.end()};
-}
-
-void block::load_tx_data()
-{
-    auto decoded = base16_decode({_txdata.begin(), _txdata.end()});
-    auto string = std::string{decoded.begin(), decoded.end()};
-    json json = json::parse(string);
-    for (auto &value : json)
-    {
-        _transactions.push_back(transaction::from_string(value.dump()));
-    }
 }
 
 }

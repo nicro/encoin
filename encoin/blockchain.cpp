@@ -1,23 +1,36 @@
 #include "blockchain.h"
 #include <iostream>
+#include <fstream>
+#include <nlohmann/json.hpp>
+#include <filesystem>
 
 namespace encoin {
 
-blockchain::blockchain()
-    : _storage(create_chain_storage())
+using nlohmann::json;
+
+blockchain::blockchain(bool is_main)
+    : _is_main(is_main)
 {
-    _storage.sync_schema();
+    if (_is_main && std::filesystem::exists(CHAIN_FILENAME))
+    {
+        load(CHAIN_FILENAME);
+    }
 }
 
-void blockchain::remove_all()
+blockchain::~blockchain()
 {
-    _storage.remove_all<block>();
-    _storage.replace(block::genesis());
+    if (_is_main)
+    {
+        save(CHAIN_FILENAME);
+    }
 }
 
-std::vector<block> blockchain::get_all()
+blockchain blockchain::operator=(const blockchain &other)
 {
-    return _storage.get_all<block>();
+    set_blocks(other.blocks());
+    set_pool(other.pool());
+    save(CHAIN_FILENAME);
+    return *this;
 }
 
 void blockchain::push(block block)
@@ -27,9 +40,8 @@ void blockchain::push(block block)
 
     block.set_height(last_block().height() + 1);
     block.set_prev_hash(last_block().calc_hash());
-    block.save_tx_data();
 
-    _storage.replace(block);
+    _blocks.push_back(block);
 }
 
 void blockchain::push(const transaction &tx)
@@ -37,15 +49,84 @@ void blockchain::push(const transaction &tx)
     _pool.push_back(tx);
 }
 
-block blockchain::last_block()
+bool blockchain::contains(const transaction &tx)
 {
-    // should be optimized not to load all records at once
-    return _storage.get_all<block>().back();
+    for (auto &it : _pool)
+    {
+        if (tx.to_hash() == it.to_hash())
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
-tx_list blockchain::pool() const
+void blockchain::print()
 {
-    return _pool;
+    for (auto &it : _blocks)
+    {
+        std::cout << "Block " << ": " << it.to_string() << std::endl << std::endl;
+    }
+}
+
+block blockchain::last_block()
+{
+    return _blocks.size() ? _blocks.back() : block{};
+}
+
+void blockchain::load(const std::string &filename)
+{
+    std::ifstream str(filename);
+    std::stringstream buffer; buffer << str.rdbuf();
+    std::string string = buffer.str();
+    *this = blockchain::from_string(string);
+    str.close();
+}
+
+void blockchain::save(const std::string &filename)
+{
+    std::ofstream str(filename);
+    str << to_string() << std::endl;
+    str.close();
+}
+
+bool blockchain::is_empty()
+{
+    return _blocks.empty();
+}
+
+std::string blockchain::to_string() const
+{
+    json j;
+    std::vector<std::string> list;
+
+    for (auto &it : _blocks)
+    {
+        list.push_back(it.to_string());
+    }
+    j["blocks"] = list, list.clear();
+
+    for (auto &it : _pool)
+    {
+        list.push_back(it.to_string());
+    }
+    j["pool"] = list;
+    return j.dump();
+}
+
+blockchain blockchain::from_string(const std::string &string)
+{
+    blockchain chain;
+    json j = json::parse(string);
+    for (auto &it : j["blocks"])
+    {
+        chain.push(block::from_string(it));
+    }
+    for (auto &it : j["pool"])
+    {
+        chain.push(transaction::from_string(it));
+    }
+    return chain;
 }
 
 void blockchain::clear_pool()
@@ -53,27 +134,11 @@ void blockchain::clear_pool()
     _pool.clear();
 }
 
-void blockchain::print()
-{
-    for (auto it : _storage.iterate<block>())
-    {
-        it.load_tx_data();
-        std::cout << "Block " << ": " << it.to_string() << std::endl << std::endl;
-    }
-}
-
-std::string blockchain::to_string() const
-{
-    // todo: implement
-    return "";
-}
-
 amount_t blockchain::get_balance(const pubkey_t &addr)
 {
     amount_t balance = 0;
-    for (auto block : _storage.iterate<block>())
+    for (auto &block : _blocks)
     {
-        block.load_tx_data();
         for (auto &tx : block.transactions())
         {
             for (auto &in : tx.inputs())
@@ -88,10 +153,9 @@ amount_t blockchain::get_balance(const pubkey_t &addr)
     return balance;
 }
 
-blockchain blockchain::create_random_filled()
+blockchain blockchain::random_filled()
 {
     blockchain chain;
-    chain.remove_all();
 
     block b1 = {
         transaction::create_random(),
@@ -102,11 +166,12 @@ blockchain blockchain::create_random_filled()
     wallet wallet1;
     const auto to = wallet1.create_new_address();
 
-    block b2 = {
+    block b2;
+
+    block b3 = {
         transaction::create(wallet1.create_new_address(), to, 220),
         transaction::create(wallet1.create_new_address(), to, 54)
     };
-    block b3;
 
     chain.push(b1);
     chain.push(b2);
@@ -114,6 +179,5 @@ blockchain blockchain::create_random_filled()
 
     return chain;
 }
-
 
 }
