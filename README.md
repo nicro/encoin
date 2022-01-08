@@ -2,7 +2,95 @@
 
 An effort to implement simple yet full-featured cryptocurrency.
 
-## Dependencies
+
+
+# Usage
+
+```bash
+./encoin <command> [options]
+```
+
+
+
+## Settings
+
+> Read and write settings
+
+```bash
+encoin get [OPTION]
+encoin set [OPTION]=[VALUE]
+```
+
+Available options:
+
+Option| Description| Type| Default
+:-----:|:-----:|:-----:|:-----:
+`port`|A port that other nodes would use to access your instance|unsigned short|5001
+`reward_address`|The address reward fee is sent to|string|null
+
+
+## Creating test data
+
+> Create test blocks and transactions locally
+
+```bash
+encoin create-random
+```
+
+
+## Run node
+
+> Run node to be accessible from other peers
+
+```bash
+encoin run-node
+```
+
+
+## Print blockchain
+
+> Print local copy of blockchain
+
+```bash
+encoin print-blockchain
+```
+
+
+## Print wallet
+
+> Print all of your addresses and their balances on the net
+
+```bash
+encoin print-wallet
+```
+
+
+## Mining
+
+> Begin mining process
+
+```bash
+encoin mine
+```
+
+## Sending
+
+> Send certain amount of encoins to somebody else's address
+
+```bash
+encoin wallet-send --to [TARGET] --amount [AMOUNT] 
+```
+
+Available flags:
+
+Option| Description| Type| Required
+:-----:|:-----:|:-----:|:-----:
+`--to`|target address|string|true
+`--amount`|amount of encoins|uint64|true
+
+
+
+# Dependencies
 
 These libraries are required for building:
 
