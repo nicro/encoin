@@ -1,4 +1,4 @@
-# encoin
+# Encoin
 
 An effort to implement simple yet full-featured cryptocurrency.
 
@@ -31,7 +31,7 @@ Option| Description| Type| Default
 
 ## Creating test data
 
-> Create test blocks and transactions locally
+> Create test random blocks and transactions locally
 
 ```bash
 encoin create-random
@@ -49,7 +49,7 @@ encoin run-node
 
 ## Print blockchain
 
-> Print local copy of blockchain
+> Print local copy of blockchain as json
 
 ```bash
 encoin print-blockchain
@@ -100,7 +100,7 @@ These libraries are required for building:
 * [`termcolor`](https://github.com/ikalnytskyi/termcolor#installation)
 * [`json`](https://github.com/nlohmann/json#package-managers)
 
-<details><summary><b>Show instructions</b></summary>
+## Building instructions
 
 1. Install boost, openssl and other dependencies:
 
@@ -115,5 +115,3 @@ These libraries are required for building:
 
 2. Compile and install [`secp256k1`](https://github.com/bitcoin-core/secp256k1#build-steps) library
 3. Install header-only json and [`json`](https://github.com/nlohmann/json#package-managers) and [`termcolor`](https://github.com/ikalnytskyi/termcolor#installation) libraries to `/usr/local/include/`
-    
-</details>
