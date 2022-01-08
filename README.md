@@ -2,6 +2,10 @@
 
 An effort to implement simple yet full-featured cryptocurrency.
 
+- [Encoin](#encoin)
+- [Usage](#usage)
+- [Dependencies](#dependencies)
+  - [How to install them](#dependencies-installation)
 
 
 # Usage
@@ -100,7 +104,7 @@ These libraries are required for building:
 * [`termcolor`](https://github.com/ikalnytskyi/termcolor#installation)
 * [`json`](https://github.com/nlohmann/json#package-managers)
 
-## Building instructions
+# Dependencies installation
 
 1. Install boost, openssl and other dependencies:
 
@@ -114,4 +118,4 @@ These libraries are required for building:
     ```
 
 2. Compile and install [`secp256k1`](https://github.com/bitcoin-core/secp256k1#build-steps) library
-3. Install header-only json and [`json`](https://github.com/nlohmann/json#package-managers) and [`termcolor`](https://github.com/ikalnytskyi/termcolor#installation) libraries to `/usr/local/include/`
+3. Install header-only [`json`](https://github.com/nlohmann/json#package-managers) and [`termcolor`](https://github.com/ikalnytskyi/termcolor#installation) libraries to `/usr/local/include/`
