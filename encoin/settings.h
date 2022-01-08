@@ -35,7 +35,6 @@ public:
     SETTING_SETTER(_type, _name)
 
 public:
-    SETTING(bool, main_net, false);
     SETTING(std::string, reward_address, "");
     SETTING(unsigned short, port, 5001);
 

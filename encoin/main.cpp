@@ -15,14 +15,14 @@ int main(int argc, char **argv)
 {
     po::options_description desc("encoin - a simple cryptocurrency");
     desc.add_options()
-        ("opt",    po::value<std::string>(), "command")
+        ("cmd",    po::value<std::string>(), "command")
         ("value",  po::value<std::string>(), "value")
         ("to",     po::value<std::string>(), "destination")
         ("amount", po::value<amount_t>(),    "amount")
         ("help",                             "print usage");
 
     po::positional_options_description pos_desc;
-    pos_desc.add("opt", 1);
+    pos_desc.add("cmd", 1);
     pos_desc.add("value", 1);
 
     po::variables_map cmdopts;
@@ -37,13 +37,13 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    if (cmdopts.count("help") || !cmdopts.count("opt"))
+    if (cmdopts.count("help") || !cmdopts.count("cmd"))
     {
         std::cout << desc << std::endl;
         exit(0);
     }
 
-    std::string opt  = cmdopts["opt"].as<std::string>();
+    std::string opt  = cmdopts["cmd"].as<std::string>();
 
     if (opt == "get") // local
     {
@@ -57,11 +57,6 @@ int main(int argc, char **argv)
         if (value == "reward_address")
         {
             std::cout << "reward address: " << settings.reward_address() << std::endl;
-            exit(0);
-        }
-        else if (value == "main_net")
-        {
-            std::cout << "is main net: " << settings.main_net() << std::endl;
             exit(0);
         }
         else if (value == "port")
@@ -94,12 +89,6 @@ int main(int argc, char **argv)
             {
                 settings.set_reward_address(sub2);
                 std::cout << "reward address updated to " << sub2 << std::endl;
-                return 0;
-            }
-            else if (sub1 == "main_net")
-            {
-                settings.set_main_net(sub2 == "true");
-                std::cout << "mode set to " << (sub2 == "true" ? "main net" : "dev net") << std::endl;
                 return 0;
             }
             else if (sub1 == "port")
