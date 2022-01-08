@@ -6,6 +6,7 @@ An effort to implement simple yet full-featured cryptocurrency.
 - [Usage](#usage)
 - [Dependencies](#dependencies)
   - [How to install them](#dependencies-installation)
+- [Compiling](#compiling)
 
 
 # Usage
@@ -119,3 +120,16 @@ These libraries are required for building:
 
 2. Compile and install [`secp256k1`](https://github.com/bitcoin-core/secp256k1#build-steps) library
 3. Install header-only [`json`](https://github.com/nlohmann/json#package-managers) and [`termcolor`](https://github.com/ikalnytskyi/termcolor#installation) libraries to `/usr/local/include/`
+
+# Compiling
+
+> Please ensure you have installed all of the libraries from above before compiling the sources
+
+```
+$ git clone https://github.com/nicro/encoin.git
+$ cd encoin
+$ mkdir build && cd build
+$ cmake ..
+$ make
+$ ./encoin
+```
