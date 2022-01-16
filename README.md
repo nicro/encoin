@@ -12,21 +12,20 @@ An effort to implement simple yet full-featured cryptocurrency.
 # Usage
 
 ```bash
-./encoin <command> [options]
-```
+encoin <command> [options]
 
-
-
-## Settings
-
-> Read and write settings
-
-```bash
-encoin get [option]
+encoin set [option]
 encoin set [option=value]
+encoin create-random
+encoin run-node
+encoin print-blockchain
+encoin print-wallet
+encoin mine
+encoin wallet-send --to [target] --amount [amount]
 ```
 
-Available options:
+
+Available setting options:
 
 Option| Description| Type| Default
 :-----:|:-----:|:-----:|:-----:
@@ -34,64 +33,13 @@ Option| Description| Type| Default
 `reward_address`|The address reward fee is sent to|string|null
 
 
-## Creating test data
-
-> Create test random blocks and transactions locally
-
-```bash
-encoin create-random
-```
-
-
-## Run node
-
-> Run node to be accessible from other peers
-
-```bash
-encoin run-node
-```
-
-
-## Print blockchain
-
-> Print local copy of blockchain as json
-
-```bash
-encoin print-blockchain
-```
-
-
-## Print wallet
-
-> Print all of your addresses and their balances on the net
-
-```bash
-encoin print-wallet
-```
-
-
-## Mining
-
-> Begin mining process
-
-```bash
-encoin mine
-```
-
-## Sending
-
-> Send certain amount of encoins to somebody else's address
-
-```bash
-encoin wallet-send --to [target] --amount [amount]
-```
-
-Available flags:
+Send parameters:
 
 Option| Description| Type| Required
 :-----:|:-----:|:-----:|:-----:
 `--to`|target address|string|true
 `--amount`|amount of encoins|uint64|true
+
 
 
 
@@ -118,7 +66,7 @@ These libraries are required for building:
     $ sudo apt install cmake autoconf automake libtool libboost-all-dev
     ```
     Install header-only [`json`](https://github.com/nlohmann/json#package-managers) and [`termcolor`](https://github.com/ikalnytskyi/termcolor#installation) libraries to `/usr/local/include/`
-
+<br />
 2. Compile and install `secp256k1` library using these [instructions](https://github.com/bitcoin-core/secp256k1#build-steps)
 
 # Compiling

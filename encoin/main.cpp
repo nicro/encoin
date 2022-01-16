@@ -11,9 +11,20 @@
 using namespace encoin;
 namespace po = boost::program_options;
 
+
+// generated with figlet tool
+const char *encoin_label = R"(
+ _____                 _
+| ____|_ __   ___ ___ (_)_ __
+|  _| | '_ \ / __/ _ \| | '_ \
+| |___| | | | (_| (_) | | | | |
+|_____|_| |_|\___\___/|_|_| |_|
+)";
+
+
 int main(int argc, char **argv)
 {
-    po::options_description desc("encoin - a simple cryptocurrency");
+    po::options_description desc("encoin - a simple cryptocurrency in c++17");
     desc.add_options()
         ("cmd",    po::value<std::string>(), "command")
         ("value",  po::value<std::string>(), "value")
@@ -31,7 +42,7 @@ int main(int argc, char **argv)
         po::store(po::command_line_parser(argc, argv).options(desc).positional(pos_desc).run(), cmdopts);
         boost::program_options::notify(cmdopts);
     }
-    catch (boost::program_options::error& e)
+    catch (boost::program_options::error &e)
     {
         std::cout << "error: " << e.what() << "\n";
         return -1;
@@ -39,6 +50,7 @@ int main(int argc, char **argv)
 
     if (cmdopts.count("help") || !cmdopts.count("cmd"))
     {
+        std::cout << encoin_label << std::endl;
         std::cout << desc << std::endl;
         exit(0);
     }
