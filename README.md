@@ -22,8 +22,8 @@ An effort to implement simple yet full-featured cryptocurrency.
 > Read and write settings
 
 ```bash
-encoin get [OPTION]
-encoin set [OPTION]=[VALUE]
+encoin get [option]
+encoin set [option=value]
 ```
 
 Available options:
@@ -83,7 +83,7 @@ encoin mine
 > Send certain amount of encoins to somebody else's address
 
 ```bash
-encoin wallet-send --to [TARGET] --amount [AMOUNT] 
+encoin wallet-send --to [target] --amount [amount]
 ```
 
 Available flags:
@@ -111,15 +111,15 @@ These libraries are required for building:
 
     On macOS:
     ```sh
-    $ brew install cmake autoconf automake libtool boost libssl-dev
+    $ brew install cmake autoconf automake libtool boost openssl termcolor nlohmann-json
     ```
     On Ubuntu:
     ```sh
     $ sudo apt install cmake autoconf automake libtool libboost-all-dev
     ```
+    Install header-only [`json`](https://github.com/nlohmann/json#package-managers) and [`termcolor`](https://github.com/ikalnytskyi/termcolor#installation) libraries to `/usr/local/include/`
 
-2. Compile and install [`secp256k1`](https://github.com/bitcoin-core/secp256k1#build-steps) library
-3. Install header-only [`json`](https://github.com/nlohmann/json#package-managers) and [`termcolor`](https://github.com/ikalnytskyi/termcolor#installation) libraries to `/usr/local/include/`
+2. Compile and install `secp256k1` library using these [instructions](https://github.com/bitcoin-core/secp256k1#build-steps)
 
 # Compiling
 
