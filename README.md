@@ -66,8 +66,8 @@ These libraries are required for building:
     $ sudo apt install cmake autoconf automake libtool libboost-all-dev
     ```
     Install header-only [`json`](https://github.com/nlohmann/json#package-managers) and [`termcolor`](https://github.com/ikalnytskyi/termcolor#installation) libraries to `/usr/local/include/`
-<br />
-2. Compile and install `secp256k1` library using these [instructions](https://github.com/bitcoin-core/secp256k1#build-steps)
+
+2. Compile and install `secp256k1` library using these [`instructions`](https://github.com/bitcoin-core/secp256k1#build-steps)
 
 # Compiling
 
